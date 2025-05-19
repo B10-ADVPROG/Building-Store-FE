@@ -5,10 +5,9 @@ export default function Home() {
 
   return (
     <div>
-      <h2>Selamat datang</h2>
-      <p>Silakan pilih:</p>
-      <button onClick={() => navigate('/auth/login')}>Login</button>
-      <button onClick={() => navigate('/auth/register')}>Register</button>
+        <h1>Building Store</h1>
+        <button onClick={() => navigate('/auth/login')}>Login</button>
+        <button onClick={() => navigate('/auth/register')}>Register</button>
     </div>
   )
 }
