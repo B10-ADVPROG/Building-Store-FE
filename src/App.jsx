@@ -11,12 +11,12 @@ export default function App() {
   return (
     <Routes>
       <Route path='/' element={<Home />} />
-      <Route path='auth/' element={<AuthRoutes />} />
-      <Route path='produk/' element={<ManajemenProdukRoutes />} />
-      <Route path='pelanggan/' element={<ManajemenPelangganRoutes />} />
-      <Route path='pembayaran/' element={<ManajemenPembayaranRoutes />} />
-      <Route path='supplier/' element={<ManajemenSupplierRoutes />} />
-      <Route path='transaksi/' element={<TransaksiPenjualanRoutes />} />
+      <Route path='auth/*' element={<AuthRoutes />} />
+      <Route path='produk/*' element={<ManajemenProdukRoutes />} />
+      <Route path='pelanggan/*' element={<ManajemenPelangganRoutes />} />
+      <Route path='pembayaran/*' element={<ManajemenPembayaranRoutes />} />
+      <Route path='supplier/*' element={<ManajemenSupplierRoutes />} />
+      <Route path='transaksi/*' element={<TransaksiPenjualanRoutes />} />
     </Routes>
   )
 }
