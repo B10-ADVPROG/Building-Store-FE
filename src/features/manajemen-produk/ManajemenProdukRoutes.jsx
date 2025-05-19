@@ -1,0 +1,8 @@
+import { Routes, Route } from 'react-router-dom'
+
+export default function ManajemenProdukRoutes() {
+  return (
+    <Routes>
+    </Routes>
+  )
+}
