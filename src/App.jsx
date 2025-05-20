@@ -1,5 +1,22 @@
-function App() {
-  <h1>Manajemen Produk</h1>
-}
+import { Routes, Route } from 'react-router-dom'
+import ManajemenProdukRoutes from './features/manajemen-produk/ManajemenProdukRoutes.jsx'
+import ManajemenPelangganRoutes from './features/manajemen-pelanggan/ManajemenPelangganRoutes.jsx'
+import ManajemenPembayaranRoutes from './features/manajemen-pembayaran/ManajemenPembayaranRoutes.jsx'
+import ManajemenSupplierRoutes from './features/manajemen-supplier/ManajemenSupplierRoutes.jsx'
+import TransaksiPenjualanRoutes from './features/transaksi-penjualan/TransaksiPenjualanRoutes.jsx'
+import Home from './Home.jsx'
+import AuthRoutes from './features/auth/AuthRoutes.jsx'
 
-export default App
+export default function App() {
+  return (
+    <Routes>
+      <Route path='/' element={<Home />} />
+      <Route path='auth/*' element={<AuthRoutes />} />
+      <Route path='produk/*' element={<ManajemenProdukRoutes />} />
+      <Route path='pelanggan/*' element={<ManajemenPelangganRoutes />} />
+      <Route path='pembayaran/*' element={<ManajemenPembayaranRoutes />} />
+      <Route path='supplier/*' element={<ManajemenSupplierRoutes />} />
+      <Route path='transaksi/*' element={<TransaksiPenjualanRoutes />} />
+    </Routes>
+  )
+}
