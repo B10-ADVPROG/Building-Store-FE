@@ -5,6 +5,14 @@ import FormTextArea from './FormTextArea';
 import FormSubmitButton from './FormSubmitButton';
 import ConfirmationModal from './ConfirmationModal';
 
+// Dummy fallback data kalau gagal fetch produk asli
+const DUMMY_PRODUCT = {
+  name: 'Produk Dummy',
+  price: 100000,
+  stock: 10,
+  description: 'Ini adalah deskripsi produk dummy karena gagal memuat data asli.',
+};
+
 export default function ProductForm({ mode, onSuccess, onCancel, productId }) {
   const { id: paramId } = useParams();
   const navigate = useNavigate();
@@ -48,7 +56,8 @@ export default function ProductForm({ mode, onSuccess, onCancel, productId }) {
           
         } catch (err) {
           console.error('Error fetching product:', err);
-          setError(err.message);
+          setError(err.message + ' - menggunakan data dummy sebagai fallback');
+          setFormData(DUMMY_PRODUCT);  
         } finally {
           setLoadingInitial(false);
         }
