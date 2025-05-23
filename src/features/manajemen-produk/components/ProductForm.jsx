@@ -13,6 +13,8 @@ export default function ProductForm({ mode, initialData }) {
   })
 
   const [showModal, setShowModal] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
@@ -23,12 +25,43 @@ export default function ProductForm({ mode, initialData }) {
     setShowModal(true)
   }
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     setShowModal(false)
-    if (mode === 'create') {
-      console.log('Creating product:', formData)
-    } else {
-      console.log('Updating product:', formData)
+    setLoading(true)
+    setError(null)
+
+    try {
+      const url =
+        mode === 'create'
+          ? 'http://127.0.0.1:8080/product/create/'
+          : `http://127.0.0.1:8080/product/edit/${initialData.id}`
+
+      const method = mode === 'create' ? 'POST' : 'PUT'
+
+      const dataToSend = mode === 'create' ? formData : { id: initialData.id, ...formData }
+
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dataToSend),
+      })
+
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.statusText}`)
+      }
+
+      const result = await response.json()
+      if (result.ok) {
+        alert(mode === 'create' ? 'Product created successfully!' : 'Product updated successfully!')
+        window.location.href = '/produk'
+      }
+      
+
+    } catch (err) {
+      console.error('Failed:', err)
+      setError(err.message)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -37,10 +70,12 @@ export default function ProductForm({ mode, initialData }) {
       <form onSubmit={handleSubmit} style={{ flexGrow: 1 }}>
         <FormInput label="Product Name" name="name" value={formData.name} onChange={handleChange} required />
         <FormInput label="Price" name="price" type="number" value={formData.price} onChange={handleChange} required />
-        <FormInput label="Stock" name="stock" type="number" value={formData.stock} onChange={handleChange}  />
+        <FormInput label="Stock" name="stock" type="number" value={formData.stock} onChange={handleChange} />
         <FormTextArea label="Description" name="description" value={formData.description} onChange={handleChange} />
-        <FormSubmitButton label={mode === 'create' ? 'Save Product' : 'Update Product'} />
+        <FormSubmitButton label={mode === 'create' ? 'Save Product' : 'Update Product'} disabled={loading} />
       </form>
+
+      {error && <div style={{ color: 'red', marginTop: '1rem' }}>{error}</div>}
 
       <ConfirmationModal
         show={showModal}
