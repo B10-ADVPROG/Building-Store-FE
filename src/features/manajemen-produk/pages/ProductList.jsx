@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import ProductCard from '../components/ProductCard.jsx';
+import CreateProductModal from '../components/CreateProductModal.jsx';
+import EditProductModal from '../components/EditProductModal.jsx';  // import modal edit
 
-// Building materials dummy data
+// Dummy data bahan bangunan
 const DUMMY_BUILDING_PRODUCTS = [
   { id: 1, productName: 'Semen Portland', productPrice: 75000, productStock: 150 },
   { id: 2, productName: 'Bata Merah', productPrice: 800, productStock: 5000 },
@@ -20,6 +21,11 @@ export default function ProductList() {
   const [error, setError] = useState(null);
   const [usingDummyData, setUsingDummyData] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+
+  // Tambahan state modal edit
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editProductId, setEditProductId] = useState(null);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -60,7 +66,6 @@ export default function ProductList() {
         throw new Error('Failed to delete product');
       }
 
-      // Remove the deleted product from state
       setProducts(products.filter(product => product.id !== id));
       
       if (usingDummyData) {
@@ -74,6 +79,28 @@ export default function ProductList() {
     } finally {
       setDeletingId(null);
     }
+  };
+
+  const handleProductCreated = (newProduct) => {
+    setProducts(prev => [...prev, newProduct]);
+  };
+
+  // Fungsi untuk membuka modal edit, diberikan productId
+  const openEditModal = (productId) => {
+    setEditProductId(productId);
+    setShowEditModal(true);
+  };
+
+  // Tutup modal edit
+  const closeEditModal = () => {
+    setShowEditModal(false);
+    setEditProductId(null);
+  };
+
+  // Setelah edit berhasil, update produk di list
+  const handleProductUpdated = (updatedProduct) => {
+    setProducts(products.map(p => p.id === updatedProduct.id ? updatedProduct : p));
+    closeEditModal();
   };
 
   if (loading) {
@@ -106,18 +133,19 @@ export default function ProductList() {
         marginBottom: '1rem' 
       }}>
         <h1>Building Materials Inventory</h1>
-        <Link 
-          to="/produk/create" 
+        <button
+          onClick={() => setShowCreateModal(true)}
           style={{
             padding: '0.5rem 1rem',
             background: '#007bff',
             color: 'white',
-            textDecoration: 'none',
-            borderRadius: '4px'
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer'
           }}
         >
-          Add New Material
-        </Link>
+          Add New Product
+        </button>
       </div>
 
       {products.length === 0 ? (
@@ -140,9 +168,26 @@ export default function ProductList() {
               unit={product.unit || 'pcs'}
               onDelete={handleDelete}
               isDeleting={deletingId === product.id}
+              onEdit={() => openEditModal(product.id)} 
             />
           ))}
         </div>
+      )}
+
+      {showCreateModal && (
+        <CreateProductModal 
+          onClose={() => setShowCreateModal(false)} 
+          onProductCreated={handleProductCreated}
+        />
+      )}
+
+      {showEditModal && (
+        <EditProductModal
+          isOpen={showEditModal}
+          onClose={closeEditModal}
+          productId={editProductId}
+          onSuccess={handleProductUpdated} 
+        />
       )}
     </div>
   );

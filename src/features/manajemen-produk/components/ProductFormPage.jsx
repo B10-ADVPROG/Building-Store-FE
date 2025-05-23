@@ -1,7 +1,33 @@
-import FormCard from './FormCard.jsx'
-import ProductForm from './ProductForm.jsx'
+import FormCard from './FormCard.jsx';
+import ProductForm from './ProductForm.jsx';
 
-export default function ProductFormPage({ mode = 'create', initialData = {} }) {
+export default function ProductFormPage({ 
+  mode = 'create', 
+  initialData = {}, 
+  onClose = null,
+  onCreated = null,
+  isModal = false 
+}) {
+  const content = (
+    <FormCard title={mode === 'create' ? 'Add New Product' : 'Edit Product'}>
+      <ProductForm 
+        mode={mode} 
+        initialData={initialData} 
+        onClose={onClose}
+        onCreated={onCreated}
+      />
+    </FormCard>
+  );
+
+  if (isModal) {
+    return (
+      <div style={{ padding: '1rem' }}>
+        {content}
+      </div>
+    );
+  }
+
+  // full page view
   return (
     <div
       className="d-flex justify-content-center align-items-center"
@@ -12,9 +38,7 @@ export default function ProductFormPage({ mode = 'create', initialData = {} }) {
         padding: '1rem',
       }}
     >
-      <FormCard title={mode === 'create' ? 'Add New Product' : 'Edit Product'}>
-        <ProductForm mode={mode} initialData={initialData} />
-      </FormCard>
+      {content}
     </div>
-  )
+  );
 }

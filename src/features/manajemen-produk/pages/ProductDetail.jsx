@@ -1,4 +1,3 @@
-// src/components/ProductDetail.jsx
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 

@@ -1,4 +1,3 @@
-// src/components/ProductForm.jsx
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import FormInput from './FormInput';
@@ -6,9 +5,11 @@ import FormTextArea from './FormTextArea';
 import FormSubmitButton from './FormSubmitButton';
 import ConfirmationModal from './ConfirmationModal';
 
-export default function ProductForm({ mode }) {
-  const { id } = useParams();
+export default function ProductForm({ mode, onSuccess, onCancel, productId }) {
+  const { id: paramId } = useParams();
   const navigate = useNavigate();
+  
+  const id = productId || paramId;
   
   const [formData, setFormData] = useState({
     name: '',
@@ -22,7 +23,6 @@ export default function ProductForm({ mode }) {
   const [loadingInitial, setLoadingInitial] = useState(false);
   const [error, setError] = useState(null);
 
-  // Fetch product data when in edit mode
   useEffect(() => {
     const fetchProduct = async () => {
       if (mode === 'edit' && id) {
@@ -92,8 +92,12 @@ export default function ProductForm({ mode }) {
 
       const result = await response.json();
       if (result.ok) {
-        alert(mode === 'create' ? 'Product created successfully!' : 'Product updated successfully!');
-        navigate('/produk');
+        if (onSuccess) {
+          onSuccess();
+        } else {
+          alert(mode === 'create' ? 'Product created successfully!' : 'Product updated successfully!');
+          navigate('/produk');
+        }
       }
     } catch (err) {
       console.error('Save failed:', err);
@@ -108,7 +112,7 @@ export default function ProductForm({ mode }) {
   }
 
   if (mode === 'edit' && !id) {
-    return <div style={{ color: 'red', marginTop: '1rem' }}>Error: Product ID not found in URL</div>;
+    return <div style={{ color: 'red', marginTop: '1rem' }}>Error: Product ID not found</div>;
   }
 
   return (
@@ -142,10 +146,27 @@ export default function ProductForm({ mode }) {
           value={formData.description} 
           onChange={handleChange} 
         />
-        <FormSubmitButton 
-          label={mode === 'create' ? 'Save Product' : 'Update Product'} 
-          disabled={loading} 
-        />
+        
+        <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
+          <FormSubmitButton 
+            label={mode === 'create' ? 'Save Product' : 'Update Product'} 
+            disabled={loading} 
+          />
+          <button
+            type="button"
+            onClick={onCancel}
+            style={{
+              padding: '0.5rem 1rem',
+              background: '#6c757d',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            Cancel
+          </button>
+        </div>
       </form>
 
       {error && <div style={{ color: 'red', marginTop: '1rem' }}>{error}</div>}
