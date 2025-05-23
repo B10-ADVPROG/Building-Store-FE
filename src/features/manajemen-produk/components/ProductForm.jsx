@@ -1,20 +1,56 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import FormInput from './FormInput.jsx'
 import FormTextArea from './FormTextArea.jsx'
 import FormSubmitButton from './FormSubmitButton.jsx'
 import ConfirmationModal from './ConfirmationModal.jsx'
 
-export default function ProductForm({ mode, initialData }) {
+export default function ProductForm({ mode, initialData = {} }) {
   const [formData, setFormData] = useState({
-    name: initialData.name || '',
-    price: initialData.price || '',
-    stock: initialData.stock || '',
-    description: initialData.description || '',
+    name: '',
+    price: '',
+    stock: '',
+    description: '',
   })
 
   const [showModal, setShowModal] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [loadingInitial, setLoadingInitial] = useState(false)
+
+  // Fetch initial product data if mode edit
+  useEffect(() => {
+    async function fetchInitialData() {
+      if (mode === 'edit' && initialData.id) {
+        setLoadingInitial(true)
+        setError(null)
+        try {
+          const res = await fetch(`http://127.0.0.1:8080/product/detail/${initialData.id}`)
+          if (!res.ok) throw new Error('Failed to load product detail')
+          const data = await res.json()
+          // Assume API returns product object { name, price, stock, description }
+          setFormData({
+            name: data.name || '',
+            price: data.price || '',
+            stock: data.stock || '',
+            description: data.description || '',
+          })
+        } catch (err) {
+          setError(err.message)
+        } finally {
+          setLoadingInitial(false)
+        }
+      } else if (mode === 'create') {
+        // Reset form for create mode
+        setFormData({
+          name: '',
+          price: '',
+          stock: '',
+          description: '',
+        })
+      }
+    }
+    fetchInitialData()
+  }, [mode, initialData.id])
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
@@ -55,8 +91,6 @@ export default function ProductForm({ mode, initialData }) {
         alert(mode === 'create' ? 'Product created successfully!' : 'Product updated successfully!')
         window.location.href = '/produk'
       }
-      
-
     } catch (err) {
       console.error('Failed:', err)
       setError(err.message)
@@ -64,6 +98,8 @@ export default function ProductForm({ mode, initialData }) {
       setLoading(false)
     }
   }
+
+  if (loadingInitial) return <div>Loading product data...</div>
 
   return (
     <>
