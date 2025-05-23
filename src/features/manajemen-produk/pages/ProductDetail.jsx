@@ -8,6 +8,7 @@ export default function ProductDetail() {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Dummy building material data
   const DUMMY_BUILDING_PRODUCT = {
@@ -40,6 +41,34 @@ export default function ProductDetail() {
 
     fetchProductDetail();
   }, [id]);
+
+  const handleDelete = async () => {
+    if (!window.confirm(`Are you sure you want to delete ${product.productName}?`)) {
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      const response = await fetch(`http://127.0.0.1:8080/product/delete/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete product');
+      }
+
+      const result = await response.json();
+      if (result.ok) {
+        alert('Product deleted successfully!');
+        navigate('/produk');
+      }
+    } catch (err) {
+      console.error('Error deleting product:', err);
+      setError(err.message);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -96,11 +125,11 @@ export default function ProductDetail() {
 
       {error && (
         <div style={{ 
-          backgroundColor: '#fff3cd', 
-          color: '#856404',
+          backgroundColor: error.includes('Showing sample data') ? '#fff3cd' : '#f8d7da', 
+          color: error.includes('Showing sample data') ? '#856404' : '#721c24',
           padding: '0.75rem',
           marginBottom: '1.5rem',
-          border: '1px solid #ffeeba',
+          border: error.includes('Showing sample data') ? '1px solid #ffeeba' : '1px solid #f5c6cb',
           borderRadius: '4px'
         }}>
           {error}
@@ -236,21 +265,18 @@ export default function ProductDetail() {
         <button
           style={{
             padding: '0.75rem 1.5rem',
-            background: '#e74c3c',
+            background: isDeleting ? '#dc3545aa' : '#e74c3c',
             color: 'white',
             border: 'none',
             borderRadius: '4px',
             fontWeight: 'bold',
-            cursor: 'pointer'
+            cursor: isDeleting ? 'not-allowed' : 'pointer',
+            opacity: isDeleting ? 0.8 : 1
           }}
-          onClick={() => {
-            if (window.confirm(`Delete ${product.productName}?`)) {
-              // Implement delete functionality
-              console.log('Delete product', id);
-            }
-          }}
+          onClick={handleDelete}
+          disabled={isDeleting}
         >
-          Delete Material
+          {isDeleting ? 'Deleting...' : 'Delete Material'}
         </button>
       </div>
     </div>

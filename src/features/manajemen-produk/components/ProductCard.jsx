@@ -1,7 +1,15 @@
 // src/components/ProductCard.jsx
 import { Link } from 'react-router-dom';
 
-export default function ProductCard({ id, name, price, stock }) {
+export default function ProductCard({ 
+  id, 
+  name, 
+  price, 
+  stock, 
+  unit = 'pcs',
+  onDelete,
+  isDeleting 
+}) {
   return (
     <div style={{
       border: '1px solid #ddd',
@@ -9,13 +17,27 @@ export default function ProductCard({ id, name, price, stock }) {
       padding: '1rem',
       display: 'flex',
       flexDirection: 'column',
-      gap: '0.5rem'
+      gap: '0.5rem',
+      backgroundColor: '#f9f9f9'
     }}>
-      <h3 style={{ margin: '0 0 0.5rem 0' }}>{name}</h3>
+      <h3 style={{ 
+        margin: '0 0 0.5rem 0',
+        color: '#333',
+        fontSize: '1.1rem'
+      }}>
+        {name}
+      </h3>
       
-      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <span>Price:</span>
-        <span style={{ fontWeight: 'bold' }}>
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between',
+        alignItems: 'center'
+      }}>
+        <span style={{ color: '#666' }}>Price:</span>
+        <span style={{ 
+          fontWeight: 'bold',
+          color: '#2a6496'
+        }}>
           {new Intl.NumberFormat('id-ID', { 
             style: 'currency', 
             currency: 'IDR',
@@ -24,9 +46,15 @@ export default function ProductCard({ id, name, price, stock }) {
         </span>
       </div>
       
-      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <span>Stock:</span>
-        <span style={{ fontWeight: 'bold' }}>{stock}</span>
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between',
+        alignItems: 'center'
+      }}>
+        <span style={{ color: '#666' }}>Stock:</span>
+        <span style={{ fontWeight: 'bold' }}>
+          {stock} {unit}
+        </span>
       </div>
       
       <div style={{ 
@@ -44,7 +72,8 @@ export default function ProductCard({ id, name, price, stock }) {
             color: 'white',
             textDecoration: 'none',
             borderRadius: '4px',
-            textAlign: 'center'
+            textAlign: 'center',
+            fontSize: '0.9rem'
           }}
         >
           Edit
@@ -53,20 +82,18 @@ export default function ProductCard({ id, name, price, stock }) {
           style={{
             flex: 1,
             padding: '0.5rem',
-            background: '#dc3545',
+            background: isDeleting ? '#dc3545aa' : '#dc3545',
             color: 'white',
             border: 'none',
             borderRadius: '4px',
-            cursor: 'pointer'
+            cursor: isDeleting ? 'not-allowed' : 'pointer',
+            fontSize: '0.9rem',
+            opacity: isDeleting ? 0.7 : 1
           }}
-          onClick={() => {
-            if (window.confirm('Are you sure you want to delete this product?')) {
-              // Implement delete functionality here
-              console.log('Delete product', id);
-            }
-          }}
+          onClick={() => onDelete(id)}
+          disabled={isDeleting}
         >
-          Delete
+          {isDeleting ? 'Deleting...' : 'Delete'}
         </button>
       </div>
     </div>

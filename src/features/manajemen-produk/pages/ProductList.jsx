@@ -19,6 +19,7 @@ export default function ProductList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [usingDummyData, setUsingDummyData] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -43,6 +44,37 @@ export default function ProductList() {
 
     fetchProducts();
   }, []);
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this building material?')) {
+      return;
+    }
+
+    setDeletingId(id);
+    try {
+      const response = await fetch(`http://127.0.0.1:8080/product/delete/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete product');
+      }
+
+      // Remove the deleted product from state
+      setProducts(products.filter(product => product.id !== id));
+      
+      if (usingDummyData) {
+        setError('Product deleted (dummy data)');
+      } else {
+        setError(null);
+      }
+    } catch (err) {
+      console.error('Error deleting product:', err);
+      setError(err.message);
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   if (loading) {
     return <div style={{ padding: '1rem' }}>Loading building materials...</div>;
@@ -105,7 +137,9 @@ export default function ProductList() {
               name={product.productName} 
               price={product.productPrice} 
               stock={product.productStock}
-              unit={product.unit || 'pcs'} // Default to 'pcs' if unit not provided
+              unit={product.unit || 'pcs'}
+              onDelete={handleDelete}
+              isDeleting={deletingId === product.id}
             />
           ))}
         </div>
