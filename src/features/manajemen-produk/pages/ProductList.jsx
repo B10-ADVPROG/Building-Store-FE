@@ -1,18 +1,17 @@
 import { useState, useEffect } from 'react';
 import ProductCard from '../components/ProductCard.jsx';
 import CreateProductModal from '../components/CreateProductModal.jsx';
-import EditProductModal from '../components/EditProductModal.jsx';  // import modal edit
+import EditProductModal from '../components/EditProductModal.jsx';
 
-// Dummy data bahan bangunan
 const DUMMY_BUILDING_PRODUCTS = [
-  { id: 1, productName: 'Semen Portland', productPrice: 75000, productStock: 150 },
-  { id: 2, productName: 'Bata Merah', productPrice: 800, productStock: 5000 },
-  { id: 3, productName: 'Pasir Halus', productPrice: 250000, productStock: 30 },
-  { id: 4, productName: 'Besi Beton 8mm', productPrice: 85000, productStock: 80 },
-  { id: 5, productName: 'Paku Baja', productPrice: 15000, productStock: 200 },
-  { id: 6, productName: 'Cat Tembok Dulux', productPrice: 120000, productStock: 45 },
-  { id: 7, productName: 'Keramik 40x40', productPrice: 85000, productStock: 120 },
-  { id: 8, productName: 'Pipa PVC 3"', productPrice: 95000, productStock: 60 }
+  { id: 1, name: 'Semen Portland', price: 75000, stock: 150 },
+  { id: 2, name: 'Bata Merah', price: 800, stock: 5000 },
+  { id: 3, name: 'Pasir Halus', price: 250000, stock: 30 },
+  { id: 4, name: 'Besi Beton 8mm', price: 85000, stock: 80 },
+  { id: 5, name: 'Paku Baja', price: 15000, stock: 200 },
+  { id: 6, name: 'Cat Tembok Dulux', price: 120000, stock: 45 },
+  { id: 7, name: 'Keramik 40x40', price: 85000, stock: 120 },
+  { id: 8, name: 'Pipa PVC 3"', price: 95000, stock: 60 }
 ];
 
 export default function ProductList() {
@@ -22,21 +21,29 @@ export default function ProductList() {
   const [usingDummyData, setUsingDummyData] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
-
-  // Tambahan state modal edit
   const [showEditModal, setShowEditModal] = useState(false);
   const [editProductId, setEditProductId] = useState(null);
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:8080/product/');
-        
+        const response = await fetch('http://127.0.0.1:8080/product/', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer Token',
+          },
+        });
+
+        console.log('Response status:', response.status);
+        const text = await response.text(); 
+        console.log("Raw response body:", text);
+
         if (!response.ok) {
           throw new Error('Failed to load products');
         }
 
-        const data = await response.json();
+        const data = JSON.parse(text);
         setProducts(data);
       } catch (err) {
         console.error('Error fetching products:', err);
@@ -60,6 +67,10 @@ export default function ProductList() {
     try {
       const response = await fetch(`http://127.0.0.1:8080/product/delete/${id}`, {
         method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer Token',
+        },
       });
 
       if (!response.ok) {
@@ -67,7 +78,7 @@ export default function ProductList() {
       }
 
       setProducts(products.filter(product => product.id !== id));
-      
+
       if (usingDummyData) {
         setError('Product deleted (dummy data)');
       } else {
@@ -85,19 +96,16 @@ export default function ProductList() {
     setProducts(prev => [...prev, newProduct]);
   };
 
-  // Fungsi untuk membuka modal edit, diberikan productId
   const openEditModal = (productId) => {
     setEditProductId(productId);
     setShowEditModal(true);
   };
 
-  // Tutup modal edit
   const closeEditModal = () => {
     setShowEditModal(false);
     setEditProductId(null);
   };
 
-  // Setelah edit berhasil, update produk di list
   const handleProductUpdated = (updatedProduct) => {
     setProducts(products.map(p => p.id === updatedProduct.id ? updatedProduct : p));
     closeEditModal();
@@ -110,8 +118,8 @@ export default function ProductList() {
   return (
     <div style={{ padding: '1rem' }}>
       {usingDummyData && (
-        <div style={{ 
-          backgroundColor: '#fff3cd', 
+        <div style={{
+          backgroundColor: '#fff3cd',
           color: '#856404',
           padding: '0.75rem',
           marginBottom: '1rem',
@@ -121,16 +129,16 @@ export default function ProductList() {
           Warning: Using sample building materials data because server couldn't be reached
         </div>
       )}
-      
+
       {error && !usingDummyData && (
         <div style={{ color: 'red', padding: '1rem' }}>{error}</div>
       )}
 
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
-        marginBottom: '1rem' 
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '1rem'
       }}>
         <h1>Building Materials Inventory</h1>
         <button
@@ -159,24 +167,24 @@ export default function ProductList() {
           gap: '1rem'
         }}>
           {products.map(product => (
-            <ProductCard 
+            <ProductCard
               key={product.id}
               id={product.id}
-              name={product.productName} 
-              price={product.productPrice} 
-              stock={product.productStock}
-              unit={product.unit || 'pcs'}
+              name={product.name}
+              price={product.price}
+              stock={product.stock}
+              unit="pcs"
               onDelete={handleDelete}
               isDeleting={deletingId === product.id}
-              onEdit={() => openEditModal(product.id)} 
+              onEdit={() => openEditModal(product.id)}
             />
           ))}
         </div>
       )}
 
       {showCreateModal && (
-        <CreateProductModal 
-          onClose={() => setShowCreateModal(false)} 
+        <CreateProductModal
+          onClose={() => setShowCreateModal(false)}
           onProductCreated={handleProductCreated}
         />
       )}
@@ -186,7 +194,7 @@ export default function ProductList() {
           isOpen={showEditModal}
           onClose={closeEditModal}
           productId={editProductId}
-          onSuccess={handleProductUpdated} 
+          onSuccess={handleProductUpdated}
         />
       )}
     </div>

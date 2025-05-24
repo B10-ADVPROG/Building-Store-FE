@@ -5,7 +5,6 @@ import FormTextArea from './FormTextArea';
 import FormSubmitButton from './FormSubmitButton';
 import ConfirmationModal from './ConfirmationModal';
 
-// Dummy fallback data kalau gagal fetch produk asli
 const DUMMY_PRODUCT = {
   name: 'Produk Dummy',
   price: 100000,
@@ -38,20 +37,31 @@ export default function ProductForm({ mode, onSuccess, onCancel, productId }) {
         setError(null);
         
         try {
-          const response = await fetch(`http://127.0.0.1:8080/product/detail/${id}`);
+          const headers = { 
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer Token',
+          };
           
+          const response = await fetch(`http://127.0.0.1:8080/product/detail/${id}/`, {
+            method: 'GET',
+            headers,
+          });
+
+          const text = await response.text();
+          console.log("Raw response body (Product Edit):", text);
+
           if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
             throw new Error(errorData.message || 'Failed to load product');
           }
 
-          const productData = await response.json();
-          
+          const productData = JSON.parse(text);
+
           setFormData({
-            name: productData.name || '',
-            price: productData.price || '',
-            stock: productData.stock || '',
-            description: productData.description || '',
+            name: productData.productName || '',
+            price: productData.productPrice || '',
+            stock: productData.productStock || '',
+            description: productData.productDescription || '',
           });
           
         } catch (err) {
@@ -88,10 +98,27 @@ export default function ProductForm({ mode, onSuccess, onCancel, productId }) {
 
       const method = mode === 'create' ? 'POST' : 'PUT';
 
+      const body = JSON.stringify({
+        productName: formData.name,
+        productPrice: formData.price,
+        productStock: formData.stock,
+        productDescription: formData.description,
+      });
+
+      const headers = { 
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer Token',
+      };  
+
+      console.log('Request URL:', url);
+      console.log('Request Method:', method);
+      console.log('Request Headers:', headers);
+      console.log('Request Body:', body);
+
       const response = await fetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        headers,
+        body,
       });
 
       if (!response.ok) {
@@ -100,7 +127,7 @@ export default function ProductForm({ mode, onSuccess, onCancel, productId }) {
       }
 
       const result = await response.json();
-      if (result.ok) {
+      if (result.ok || response.status === 200) {
         if (onSuccess) {
           onSuccess();
         } else {
