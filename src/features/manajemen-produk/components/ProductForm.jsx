@@ -42,7 +42,7 @@ export default function ProductForm({ mode, onSuccess, onCancel, productId }) {
             'Authorization': 'Bearer Token',
           };
           
-          const response = await fetch(`https://slim-blythe-williamalxndr-aab64bd4.koyeb.app/detail/${id}/`, {
+          const response = await fetch(`https://slim-blythe-williamalxndr-aab64bd4.koyeb.app/product/detail/${id}/`, {
             method: 'GET',
             headers,
           });

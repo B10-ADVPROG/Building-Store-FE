@@ -3,20 +3,11 @@ import ProductCard from '../components/ProductCard.jsx';
 import CreateProductModal from '../components/CreateProductModal.jsx';
 import EditProductModal from '../components/EditProductModal.jsx';
 
-const DUMMY_BUILDING_PRODUCTS = [
-  { id: 1, name: 'Semen Portland', price: 75000, stock: 150 },
-  { id: 2, name: 'Bata Merah', price: 800, stock: 5000 },
-  { id: 3, name: 'Pasir Halus', price: 250000, stock: 30 },
-  { id: 4, name: 'Besi Beton 8mm', price: 85000, stock: 80 },
-  { id: 5, name: 'Paku Baja', price: 15000, stock: 200 },
-  { id: 6, name: 'Cat Tembok Dulux', price: 120000, stock: 45 },
-  { id: 7, name: 'Keramik 40x40', price: 85000, stock: 120 },
-  { id: 8, name: 'Pipa PVC 3"', price: 95000, stock: 60 }
-];
+const DUMMY_BUILDING_PRODUCTS = [ /* ... */ ];
 
 export default function ProductList() {
   const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loadingProducts, setLoadingProducts] = useState(true);
   const [error, setError] = useState(null);
   const [usingDummyData, setUsingDummyData] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
@@ -35,14 +26,10 @@ export default function ProductList() {
           },
         });
 
-        console.log('Response status:', response.status);
-        const text = await response.text(); 
+        const text = await response.text();
         console.log("Raw response body:", text);
 
-        if (!response.ok) {
-          throw new Error('Failed to load products');
-        }
-
+        if (!response.ok) throw new Error('Failed to load products');
         const data = JSON.parse(text);
         setProducts(data);
       } catch (err) {
@@ -51,7 +38,7 @@ export default function ProductList() {
         setProducts(DUMMY_BUILDING_PRODUCTS);
         setUsingDummyData(true);
       } finally {
-        setLoading(false);
+        setLoadingProducts(false);
       }
     };
 
@@ -59,13 +46,10 @@ export default function ProductList() {
   }, []);
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this building material?')) {
-      return;
-    }
-
+    if (!window.confirm('Are you sure you want to delete this building material?')) return;
     setDeletingId(id);
     try {
-      const response = await fetch(`https://slim-blythe-williamalxndr-aab64bd4.koyeb.app/product/delete/${id}`, {
+      const response = await fetch(`https://slim-blythe-williamalxndr-aab64bd4.koyeb.app/product/delete/${id}/`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -73,17 +57,10 @@ export default function ProductList() {
         },
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to delete product');
-      }
-
+      if (!response.ok) throw new Error('Failed to delete product');
       setProducts(products.filter(product => product.id !== id));
-
-      if (usingDummyData) {
-        setError('Product deleted (dummy data)');
-      } else {
-        setError(null);
-      }
+      if (usingDummyData) setError('Product deleted (dummy data)');
+      else setError(null);
     } catch (err) {
       console.error('Error deleting product:', err);
       setError(err.message);
@@ -111,21 +88,10 @@ export default function ProductList() {
     closeEditModal();
   };
 
-  if (loading) {
-    return <div style={{ padding: '1rem' }}>Loading building materials...</div>;
-  }
-
   return (
     <div style={{ padding: '1rem' }}>
       {usingDummyData && (
-        <div style={{
-          backgroundColor: '#fff3cd',
-          color: '#856404',
-          padding: '0.75rem',
-          marginBottom: '1rem',
-          border: '1px solid #ffeeba',
-          borderRadius: '4px'
-        }}>
+        <div style={{ backgroundColor: '#fff3cd', color: '#856404', padding: '0.75rem', marginBottom: '1rem', border: '1px solid #ffeeba', borderRadius: '4px' }}>
           Warning: Using sample building materials data because server couldn't be reached
         </div>
       )}
@@ -134,38 +100,22 @@ export default function ProductList() {
         <div style={{ color: 'red', padding: '1rem' }}>{error}</div>
       )}
 
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '1rem'
-      }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
         <h1>Building Materials Inventory</h1>
         <button
           onClick={() => setShowCreateModal(true)}
-          style={{
-            padding: '0.5rem 1rem',
-            background: '#007bff',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer'
-          }}
+          style={{ padding: '0.5rem 1rem', background: '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
         >
           Add New Product
         </button>
       </div>
 
-      {products.length === 0 ? (
-        <div style={{ textAlign: 'center', margin: '2rem' }}>
-          No building materials found. Add your first material!
-        </div>
+      {loadingProducts ? (
+        <div style={{ textAlign: 'center', marginTop: '2rem' }}>Loading building materials...</div>
+      ) : products.length === 0 ? (
+        <div style={{ textAlign: 'center', margin: '2rem' }}>No building materials found. Add your first material!</div>
       ) : (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-          gap: '1rem'
-        }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
           {products.map(product => (
             <ProductCard
               key={product.id}
