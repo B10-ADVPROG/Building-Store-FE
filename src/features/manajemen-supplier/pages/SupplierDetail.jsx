@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import SupplierApi from '../api/supplierApi';
 
 export default function SupplierDetail() {
   const { id } = useParams();
@@ -23,48 +24,36 @@ export default function SupplierDetail() {
 
   useEffect(() => {
     const fetchSupplierDetail = async () => {
-      try {
-        const response = await fetch(`http://127.0.0.1:8080/supplier/detail/${id}`);
-        
-        if (!response.ok) {
-          throw new Error('Failed to load supplier details');
+        try {
+            const data = await SupplierApi.getSupplierById(id);
+            setSupplier(data);
+            setError(null);
+        } catch (err) {
+            console.error('Error fetching supplier:', err);
+            setError(`${err.message} - Showing sample data`);
+            setSupplier(DUMMY_SUPPLIER);
+        } finally {
+            setLoading(false);
         }
-
-        const data = await response.json();
-        setSupplier(data);
-      } catch (err) {
-        console.error('Error fetching supplier:', err);
-        setError(`${err.message} - Showing sample data`);
-        setSupplier(DUMMY_SUPPLIER);
-      } finally {
-        setLoading(false);
-      }
     };
 
-    fetchSupplierDetail();
+      fetchSupplierDetail();
   }, [id]);
 
   const handleDelete = async () => {
     if (!window.confirm(`Are you sure you want to delete ${supplier.name}?`)) {
-      return;
+        return;
     }
 
     setIsDeleting(true);
     try {
-      const response = await fetch(`http://127.0.0.1:8080/supplier/delete/${id}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to delete supplier');
-      }
-
-      navigate('/supplier');
+        await SupplierApi.deleteSupplier(id);
+        navigate('/supplier');
     } catch (err) {
-      console.error('Error deleting supplier:', err);
-      setError(err.message);
+        console.error('Error deleting supplier:', err);
+        setError(err.message);
     } finally {
-      setIsDeleting(false);
+        setIsDeleting(false);
     }
   };
 
