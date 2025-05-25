@@ -27,7 +27,7 @@ export default function ProductList() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:8080/product/', {
+        const response = await fetch('https://slim-blythe-williamalxndr-aab64bd4.koyeb.app/product/', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -65,7 +65,7 @@ export default function ProductList() {
 
     setDeletingId(id);
     try {
-      const response = await fetch(`http://127.0.0.1:8080/product/delete/${id}`, {
+      const response = await fetch(`https://slim-blythe-williamalxndr-aab64bd4.koyeb.app/product/delete/${id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

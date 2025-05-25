@@ -21,7 +21,7 @@ export default function ProductDetail() {
   useEffect(() => {
     const fetchProductDetail = async () => {
       try {
-        const response = await fetch(`http://127.0.0.1:8080/product/detail/${id}/`,);
+        const response = await fetch(`https://slim-blythe-williamalxndr-aab64bd4.koyeb.app/detail/${id}/`,);
         
         if (!response.ok) {
           throw new Error('Failed to load product details');
@@ -48,7 +48,7 @@ export default function ProductDetail() {
 
     setIsDeleting(true);
     try {
-      const response = await fetch(`http://127.0.0.1:8080/product/delete/${id}`, {
+      const response = await fetch(`https://slim-blythe-williamalxndr-aab64bd4.koyeb.app/delete/${id}`, {
         method: 'DELETE',
       });
 

@@ -42,7 +42,7 @@ export default function ProductForm({ mode, onSuccess, onCancel, productId }) {
             'Authorization': 'Bearer Token',
           };
           
-          const response = await fetch(`http://127.0.0.1:8080/product/detail/${id}/`, {
+          const response = await fetch(`https://slim-blythe-williamalxndr-aab64bd4.koyeb.app/detail/${id}/`, {
             method: 'GET',
             headers,
           });
@@ -93,8 +93,8 @@ export default function ProductForm({ mode, onSuccess, onCancel, productId }) {
 
     try {
       const url = mode === 'create'
-        ? 'http://127.0.0.1:8080/product/create/'
-        : `http://127.0.0.1:8080/product/edit/${id}`;
+        ? 'https://slim-blythe-williamalxndr-aab64bd4.koyeb.app/product/create/'
+        : `https://slim-blythe-williamalxndr-aab64bd4.koyeb.app/product/edit/${id}`;
 
       const method = mode === 'create' ? 'POST' : 'PUT';
 
