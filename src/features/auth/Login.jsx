@@ -51,6 +51,7 @@ export default function Login() {
 
       if (data.token) {
         localStorage.setItem('token', data.token);
+        localStorage.setItem('is_authenticated', 'true');
         window.location.href = '/'; // Redirect ke home
       }
     } catch (err) {

@@ -4,13 +4,15 @@ import ManajemenPelangganRoutes from './features/manajemen-pelanggan/ManajemenPe
 import ManajemenPembayaranRoutes from './features/manajemen-pembayaran/ManajemenPembayaranRoutes.jsx'
 import ManajemenSupplierRoutes from './features/manajemen-supplier/ManajemenSupplierRoutes.jsx'
 import TransaksiPenjualanRoutes from './features/transaksi-penjualan/TransaksiPenjualanRoutes.jsx'
-import Home from './Home.jsx'
+import LandingPage from './LandingPage.jsx'
 import AuthRoutes from './features/auth/AuthRoutes.jsx'
+import Home from './Home.jsx'
 
 export default function App() {
   return (
     <Routes>
       <Route path='/' element={<Home />} />
+      <Route path='landing/' element={<LandingPage />} />
       <Route path='auth/*' element={<AuthRoutes />} />
       <Route path='produk/*' element={<ManajemenProdukRoutes />} />
       <Route path='pelanggan/*' element={<ManajemenPelangganRoutes />} />
