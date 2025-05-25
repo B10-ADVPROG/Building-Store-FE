@@ -9,21 +9,31 @@ export default function ProductDetail() {
   const [error, setError] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Dummy building material data
-  const DUMMY_BUILDING_PRODUCT = {
-    id: id,
-    productName: 'Semen Portland',
-    productPrice: 75000,
-    productStock: 150,
-    productDescription: 'High-quality cement for construction.',
+  // Dummy product data sesuai field yang ada
+  const DUMMY_PRODUCT = {
+    id,
+    name: 'Semen Portland',
+    price: 75000,
+    stock: 150,
+    description: 'High-quality cement for construction.',
   };
 
   useEffect(() => {
     const fetchProductDetail = async () => {
+      const token = localStorage.getItem("token") || "";
       try {
-        const response = await fetch(`https://slim-blythe-williamalxndr-aab64bd4.koyeb.app/detail/${id}/`,);
-        
+        const response = await fetch(`https://slim-blythe-williamalxndr-aab64bd4.koyeb.app/product/detail/${id}/`, {
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          }
+        });
+
         if (!response.ok) {
+          if (response.status === 401 || response.status === 403) {
+            navigate("/unauthorized"); // arahkan jika token tidak valid
+            return;
+          }
           throw new Error('Failed to load product details');
         }
 
@@ -32,35 +42,41 @@ export default function ProductDetail() {
       } catch (err) {
         console.error('Error fetching product:', err);
         setError(`${err.message} - Showing sample data`);
-        setProduct(DUMMY_BUILDING_PRODUCT);
+        setProduct(DUMMY_PRODUCT);
       } finally {
         setLoading(false);
       }
     };
 
     fetchProductDetail();
-  }, [id]);
+  }, [id, navigate]);
 
   const handleDelete = async () => {
-    if (!window.confirm(`Are you sure you want to delete ${product.productName}?`)) {
+    if (!window.confirm(`Are you sure you want to delete ${product.name}?`)) {
       return;
     }
 
     setIsDeleting(true);
+    const token = localStorage.getItem("token") || "";
     try {
-      const response = await fetch(`https://slim-blythe-williamalxndr-aab64bd4.koyeb.app/delete/${id}`, {
+      const response = await fetch(`https://slim-blythe-williamalxndr-aab64bd4.koyeb.app/product/delete/${id}/`, {
         method: 'DELETE',
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        }
       });
 
       if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          navigate("/unauthorized");
+          return;
+        }
         throw new Error('Failed to delete product');
       }
 
-      const result = await response.json();
-      if (result.ok) {
-        alert('Product deleted successfully!');
-        navigate('/produk');
-      }
+      alert('Product deleted successfully!');
+      navigate('/produk');
     } catch (err) {
       console.error('Error deleting product:', err);
       setError(err.message);
@@ -72,7 +88,7 @@ export default function ProductDetail() {
   if (loading) {
     return (
       <div style={{ padding: '2rem', textAlign: 'center' }}>
-        <p>Loading building material details...</p>
+        <p>Loading product details...</p>
       </div>
     );
   }

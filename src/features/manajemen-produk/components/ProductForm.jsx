@@ -96,7 +96,7 @@ export default function ProductForm({ mode, onSuccess, onCancel, productId }) {
     try {
       const url = mode === 'create'
         ? 'https://slim-blythe-williamalxndr-aab64bd4.koyeb.app/product/create/'
-        : `https://slim-blythe-williamalxndr-aab64bd4.koyeb.app/product/edit/${id}`;
+        : `https://slim-blythe-williamalxndr-aab64bd4.koyeb.app/product/edit/${id}/`;
 
       const method = mode === 'create' ? 'POST' : 'PUT';
 
@@ -107,9 +107,10 @@ export default function ProductForm({ mode, onSuccess, onCancel, productId }) {
         productDescription: formData.description,
       });
 
+      const token = localStorage.getItem("token") || "";
       const headers = { 
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer Token',
+        'Authorization': `Bearer ${token}`,
       };  
 
       console.log('Request URL:', url);
@@ -132,9 +133,10 @@ export default function ProductForm({ mode, onSuccess, onCancel, productId }) {
       if (result.ok || response.status === 200) {
         if (onSuccess) {
           onSuccess();
+          window.location.reload();
         } else {
           alert(mode === 'create' ? 'Product created successfully!' : 'Product updated successfully!');
-          navigate('/produk');
+          navigate('/produk/');      
         }
       }
     } catch (err) {

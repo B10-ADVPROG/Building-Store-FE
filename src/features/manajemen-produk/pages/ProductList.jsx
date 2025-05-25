@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import ProductCard from '../components/ProductCard.jsx';
 import CreateProductModal from '../components/CreateProductModal.jsx';
 import EditProductModal from '../components/EditProductModal.jsx';
+
 
 const DUMMY_BUILDING_PRODUCTS = [ 
   { id: 1, productName: 'Semen Portland', productPrice: 75000, productStock: 150 },
@@ -9,6 +11,7 @@ const DUMMY_BUILDING_PRODUCTS = [
 ];
 
 export default function ProductList() {
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
   const [error, setError] = useState(null);
@@ -19,15 +22,32 @@ export default function ProductList() {
   const [editProductId, setEditProductId] = useState(null);
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    const initialize = async () => {
       const token = localStorage.getItem("token") || "";
 
       try {
-        let headers = {
+        let body = JSON.stringify({ "token": token });
+        console.log("Body: ", body);
+
+        const authResponse = await fetch("https://slim-blythe-williamalxndr-aab64bd4.koyeb.app/auth/auth-admin/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: body,
+        });
+
+        console.log("Auth Response Status:", authResponse.status);
+
+        const authResponseRaw = await authResponse.text();
+        console.log("Auth Response Body:", authResponseRaw);
+
+        // Cek apakah adalah admin
+        if (!authResponse.ok) throw new Error("Unauthorized");
+
+        // Fetch produk jika authorized
+        const headers = {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`,
-        }
-        console.log("Headers: ", headers);
+        };
 
         const response = await fetch('https://slim-blythe-williamalxndr-aab64bd4.koyeb.app/product/', {
           method: 'GET',
@@ -35,41 +55,40 @@ export default function ProductList() {
         });
 
         const text = await response.text();
-        console.log("Raw response body:", text);
-
         if (!response.ok) throw new Error('Failed to load products');
         const data = JSON.parse(text);
         setProducts(data);
       } catch (err) {
-        console.error('Error fetching products:', err);
-        setError(`${err.message} - Using dummy data instead`);
-        setProducts(DUMMY_BUILDING_PRODUCTS);
-        setUsingDummyData(true);
+        if (err.message === "Unauthorized" || err.message === "Forbidden") {
+          navigate("/unauthorized"); // arahkan ke halaman unauthorized
+        } else {
+          console.error('Error:', err.message);
+          setError(`${err.message} - Using dummy data instead`);
+          setProducts(DUMMY_BUILDING_PRODUCTS);
+          setUsingDummyData(true);
+        }
       } finally {
         setLoadingProducts(false);
       }
     };
 
-    fetchProducts();
-  }, []);
+    initialize();
+  }, [navigate]);
 
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this building material?')) return;
     setDeletingId(id);
     try {
       const token = localStorage.getItem("token") || "";
-      
-      let headers = {
+      const headers = {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${token}`,
-      }
+      };
 
       const response = await fetch(`https://slim-blythe-williamalxndr-aab64bd4.koyeb.app/product/delete/${id}/`, {
         method: 'DELETE',
         headers,
       });
-
-      console.log("Headers: ", headers);
 
       if (!response.ok) throw new Error('Failed to delete product');
       setProducts(products.filter(product => product.id !== id));
@@ -131,17 +150,17 @@ export default function ProductList() {
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
           {products.map(product => (
-            <ProductCard
-              key={product.id}
-              id={product.id}
-              name={product.name}
-              price={product.price}
-              stock={product.stock}
-              unit="pcs"
-              onDelete={handleDelete}
-              isDeleting={deletingId === product.id}
-              onEdit={() => openEditModal(product.id)}
-            />
+              <ProductCard
+                key={product.id}
+                id={product.id}
+                name={product.name}
+                price={product.price}
+                stock={product.stock}
+                unit="pcs"
+                onDelete={handleDelete}
+                isDeleting={deletingId === product.id}
+                onEdit={() => openEditModal(product.id)}
+              />
           ))}
         </div>
       )}
