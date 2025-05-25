@@ -4,6 +4,7 @@ import FormInput from '../../manajemen-produk/components/FormInput';
 import FormTextArea from '../../manajemen-produk/components/FormTextArea';
 import FormSubmitButton from '../../manajemen-produk/components/FormSubmitButton';
 import ConfirmationModal from '../../manajemen-produk/components/ConfirmationModal';
+import SupplierApi from '../api/supplierApi';
 
 // Dummy fallback data
 const DUMMY_SUPPLIER = {
@@ -24,7 +25,7 @@ export default function SupplierForm({ mode, onSuccess, onCancel, supplierId }) 
   
   const [formData, setFormData] = useState({
     name: '',
-    contactName: '',
+    contactPerson: '',
     phone: '',
     address: '',
     email: '',
@@ -39,41 +40,32 @@ export default function SupplierForm({ mode, onSuccess, onCancel, supplierId }) 
 
   useEffect(() => {
     const fetchSupplier = async () => {
-      if (mode === 'edit' && id) {
-        setLoadingInitial(true);
-        setError(null);
-        
-        try {
-          const response = await fetch(`http://127.0.0.1:8080/supplier/detail/${id}`);
-          
-          if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.message || 'Failed to load supplier');
-          }
-
-          const supplierData = await response.json();
-          
-          setFormData({
-            name: supplierData.name || '',
-            contactName: supplierData.contactName || '',
-            phone: supplierData.phone || '',
-            address: supplierData.address || '',
-            email: supplierData.email || '',
-            description: supplierData.description || '',
-            notes: supplierData.notes || ''
-          });
-          
-        } catch (err) {
-          console.error('Error fetching supplier:', err);
-          setError(err.message + ' - using dummy data as fallback');
-          setFormData(DUMMY_SUPPLIER);  
-        } finally {
-          setLoadingInitial(false);
+        if (mode === 'edit' && id) {
+            setLoadingInitial(true);
+            setError(null);
+            
+            try {
+                const supplierData = await SupplierApi.getSupplierById(id);
+                setFormData({
+                    name: supplierData.name || '',
+                    contactPerson: supplierData.contactPerson || '',
+                    phone: supplierData.phone || '',
+                    address: supplierData.address || '',
+                    email: supplierData.email || '',
+                    description: supplierData.description || '',
+                    notes: supplierData.notes || ''
+                });
+            } catch (err) {
+                console.error('Error fetching supplier:', err);
+                setError(err.message);
+                setFormData(DUMMY_SUPPLIER);
+            } finally {
+                setLoadingInitial(false);
+            }
         }
-      }
     };
 
-    fetchSupplier();
+      fetchSupplier();
   }, [mode, id]);
 
   const handleChange = (e) => {
@@ -91,35 +83,21 @@ export default function SupplierForm({ mode, onSuccess, onCancel, supplierId }) 
     setError(null);
 
     try {
-      const url = mode === 'create'
-        ? 'http://127.0.0.1:8080/supplier/create/'
-        : `http://127.0.0.1:8080/supplier/edit/${id}`;
+        const result = mode === 'create' 
+            ? await SupplierApi.createSupplier(formData)
+            : await SupplierApi.updateSupplier(id, formData);
 
-      const method = mode === 'create' ? 'POST' : 'PUT';
-
-      const response = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Failed to save supplier');
-      }
-
-      const result = await response.json();
-      if (onSuccess) {
-        onSuccess(result);
-      } else {
-        alert(mode === 'create' ? 'Supplier created successfully!' : 'Supplier updated successfully!');
-        navigate('/supplier');
-      }
+        if (onSuccess) {
+            onSuccess(result);
+        } else {
+            alert(mode === 'create' ? 'Supplier created successfully!' : 'Supplier updated successfully!');
+            navigate('/supplier');
+        }
     } catch (err) {
-      console.error('Save failed:', err);
-      setError(err.message);
+        console.error('Save failed:', err);
+        setError(err.message);
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
   };
 
@@ -143,8 +121,8 @@ export default function SupplierForm({ mode, onSuccess, onCancel, supplierId }) 
         />
         <FormInput 
           label="Contact Person" 
-          name="contactName" 
-          value={formData.contactName} 
+          name="contactPerson" 
+          value={formData.contactPerson} 
           onChange={handleChange} 
           required 
         />

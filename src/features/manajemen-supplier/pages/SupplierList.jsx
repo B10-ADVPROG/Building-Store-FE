@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import SupplierCard from '../components/SupplierCard.jsx';
 import CreateSupplierModal from '../components/CreateSupplierModal.jsx';
 import EditSupplierModal from '../components/EditSupplierModal.jsx';
+import SupplierApi from '../api/supplierApi';
 
 // Dummy data for suppliers
 const DUMMY_SUPPLIERS = [
@@ -24,57 +25,42 @@ export default function SupplierList() {
 
   useEffect(() => {
     const fetchSuppliers = async () => {
-      try {
-        const response = await fetch('http://127.0.0.1:8080/supplier/');
-        
-        if (!response.ok) {
-          throw new Error('Failed to load suppliers');
+        try {
+            console.log('Fetching suppliers...');
+            const data = await SupplierApi.getAllSuppliers();
+            console.log('Received suppliers:', data);
+            setSuppliers(data);
+            setUsingDummyData(false);
+        } catch (err) {
+            console.error('Error fetching suppliers:', err);
+            setError(`${err.message} - Using dummy data instead`);
+            setSuppliers(DUMMY_SUPPLIERS);
+            setUsingDummyData(true);
+        } finally {
+            setLoading(false);
         }
+      };
 
-        const data = await response.json();
-        setSuppliers(data);
-      } catch (err) {
-        console.error('Error fetching suppliers:', err);
-        setError(`${err.message} - Using dummy data instead`);
-        setSuppliers(DUMMY_SUPPLIERS);
-        setUsingDummyData(true);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchSuppliers();
+      fetchSuppliers();
   }, []);
 
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this supplier?')) {
-      return;
+        return;
     }
 
     setDeletingId(id);
     try {
-      const response = await fetch(`http://127.0.0.1:8080/supplier/delete/${id}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to delete supplier');
-      }
-
-      setSuppliers(suppliers.filter(supplier => supplier.id !== id));
-      
-      if (usingDummyData) {
-        setError('Supplier deleted (dummy data)');
-      } else {
+        await SupplierApi.deleteSupplier(id);
+        setSuppliers(suppliers.filter(supplier => supplier.id !== id));
         setError(null);
-      }
     } catch (err) {
-      console.error('Error deleting supplier:', err);
-      setError(err.message);
+        console.error('Error deleting supplier:', err);
+        setError(err.message);
     } finally {
-      setDeletingId(null);
+        setDeletingId(null);
     }
-  };
+};
 
   const handleSupplierCreated = (newSupplier) => {
     setSuppliers(prev => [...prev, newSupplier]);
@@ -91,7 +77,9 @@ export default function SupplierList() {
   };
 
   const handleSupplierUpdated = (updatedSupplier) => {
-    setSuppliers(suppliers.map(s => s.id === updatedSupplier.id ? updatedSupplier : s));
+    setSuppliers(suppliers =>
+      suppliers.map(s => s.id === updatedSupplier.id ? updatedSupplier : s)
+    );
     closeEditModal();
   };
 
@@ -153,15 +141,11 @@ export default function SupplierList() {
           {suppliers.map(supplier => (
             <SupplierCard 
               key={supplier.id}
-              id={supplier.id}
-              name={supplier.name} 
-              contactName={supplier.contactName}
-              phone={supplier.phone}
-              address={supplier.address}
-              email={supplier.email}
+              supplier={supplier}
               onDelete={handleDelete}
               isDeleting={deletingId === supplier.id}
-              onEdit={() => openEditModal(supplier.id)} 
+              onEdit={() => openEditModal(supplier.id)}
+              onSupplierUpdated={handleSupplierUpdated}
             />
           ))}
         </div>

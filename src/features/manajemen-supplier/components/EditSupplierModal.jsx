@@ -1,14 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import SupplierForm from './SupplierForm.jsx';
+import SupplierApi from '../api/supplierApi';
 
 export default function EditSupplierModal({ isOpen, onClose, supplierId, onSuccess }) {
   const [successMessage, setSuccessMessage] = useState(null);
+  const [supplierData, setSupplierData] = useState(null); // State to hold supplier data
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  if (!isOpen) return null;
+  useEffect(() => {
+    const fetchSupplier = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await SupplierApi.getSupplierById(supplierId);
+        setSupplierData(data);
+      } catch (err) {
+        console.error('Error fetching supplier:', err);
+        setError('Failed to load supplier data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (isOpen && supplierId) {
+      fetchSupplier();
+    }
+  }, [isOpen, supplierId]);
 
   const handleSuccess = (updatedSupplier) => {
     setSuccessMessage('Supplier updated successfully!');
-    
+
     if (onSuccess) onSuccess(updatedSupplier);
 
     setTimeout(() => {
@@ -16,6 +38,21 @@ export default function EditSupplierModal({ isOpen, onClose, supplierId, onSucce
       onClose();
     }, 1500);
   };
+
+  const handleSave = async (updatedData) => {
+    try {
+      const newSupplierData = await SupplierApi.updateSupplier(supplierId, updatedData);
+      handleSuccess(newSupplierData);
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
+  if (!isOpen) return null;
+
+  if (loading) return <div>Loading supplier data...</div>;
+  if (error) return <div>Error: {error}</div>;
+  if (!supplierData) return <div>No supplier data loaded.</div>;
 
   return (
     <div
@@ -79,9 +116,10 @@ export default function EditSupplierModal({ isOpen, onClose, supplierId, onSucce
         ) : (
           <SupplierForm
             mode="edit"
-            supplierId={supplierId}
+            initialValues={supplierData} // Pass initial values to the form
+            onSubmit={handleSave} // Use handleSave to save the data
             onCancel={onClose}
-            onSuccess={handleSuccess}
+            supplierId={supplierId} // Pass the supplierId prop
           />
         )}
       </div>
