@@ -4,31 +4,17 @@ import { FaHome, FaBox, FaUsers, FaMoneyCheckAlt, FaTruck, FaCashRegister, FaSig
 export default function Navbar() {
   const navigate = useNavigate();
 
-  const handleLogout = async () => {
-    const token = localStorage.getItem('token');
-  
+  const handleLogout = () => {
     try {
-      const response = await fetch('/auth/logout', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-  
-      if (response.ok) {
-        localStorage.removeItem('token');
-        localStorage.setItem('is_authenticated', 'false');
-        navigate('/landing');
-      } else {
-        console.error('Logout failed:', response.status);
-        alert('Failed to logout. Please try again.');
-      }
+      localStorage.removeItem('token');
+      localStorage.setItem('is_authenticated', 'false');
+      navigate('/landing');
     } catch (error) {
       console.error('Error during logout:', error);
       alert('An error occurred during logout.');
     }
   };
-
+  
   const linkStyle = {
     color: 'white',
     borderRight: '1px solid rgba(255, 255, 255, 0.15)', // border pemisah agak lebih terang

@@ -65,7 +65,7 @@ export default function Home() {
           </button>
         </div>
         <div className="col-md-4">
-          <button onClick={() => handleNavigate('/laporan')} className="btn btn-dark w-100 py-4 fs-5 shadow-sm">
+          <button className="btn btn-dark w-100 py-4 fs-5 shadow-sm">
             📊 Laporan Penjualan & Stok
           </button>
         </div>
