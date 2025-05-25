@@ -210,7 +210,7 @@ export default function ProductDetail() {
             }}>
               LAST UPDATED
             </h3>
-            <p style={{ fontSize: '1rem', margin: 0 }}>
+            <p style={{ fontSize: '1rem', margin: 0, color: "black" }}>
               {product.lastUpdated || 'Unknown'}
             </p>
           </div>
@@ -223,22 +223,9 @@ export default function ProductDetail() {
               color: '#7f8c8d',
               marginBottom: '0.5rem'
             }}>
-              CATEGORY
-            </h3>
-            <p style={{ fontSize: '1rem', margin: 0 }}>
-              {product.productCategory || 'Building Material'}
-            </p>
-          </div>
-
-          <div style={{ marginBottom: '1.5rem' }}>
-            <h3 style={{ 
-              fontSize: '1rem',
-              color: '#7f8c8d',
-              marginBottom: '0.5rem'
-            }}>
               SUPPLIER
             </h3>
-            <p style={{ fontSize: '1rem', margin: 0 }}>
+            <p style={{ fontSize: '1rem', margin: 0, color: "black" }}>
               {product.productSupplier || 'Local Supplier'}
             </p>
           </div>
@@ -251,7 +238,7 @@ export default function ProductDetail() {
             }}>
               DESCRIPTION
             </h3>
-            <p style={{ fontSize: '1rem', margin: 0 }}>
+            <p style={{ fontSize: '1rem', margin: 0, color: "black" }}>
               {product.productDescription || 'No description available'}
             </p>
           </div>

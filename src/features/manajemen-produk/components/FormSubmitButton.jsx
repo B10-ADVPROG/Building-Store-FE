@@ -1,4 +1,9 @@
+import { FaSave, FaEdit } from 'react-icons/fa';
+
 export default function FormSubmitButton({ label, disabled }) {
+  const isCreate = label.toLowerCase().includes('save');
+  const Icon = isCreate ? FaSave : FaEdit;
+
   return (
     <button
       type="submit"
@@ -12,8 +17,12 @@ export default function FormSubmitButton({ label, disabled }) {
         cursor: disabled ? 'not-allowed' : 'pointer',
         fontSize: '1rem',
         height: '38px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.5rem',
       }}
     >
+      <Icon />
       {label}
     </button>
   );
