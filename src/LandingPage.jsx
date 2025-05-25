@@ -1,7 +1,15 @@
 import { useNavigate } from 'react-router-dom'
+import { useEffect } from 'react'
 
 export default function LandingPage() {
   const navigate = useNavigate()
+
+  useEffect(() => {
+    const isAuth = localStorage.getItem('is_authenticated') === 'true';
+    if (isAuth) {
+      navigate('/');
+    }
+  }, [navigate]);
 
   return (
     <div
