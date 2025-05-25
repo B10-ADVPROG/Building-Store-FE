@@ -1,14 +1,20 @@
-import { useNavigate } from 'react-router-dom'
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function Home() {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const isAuth = localStorage.getItem('is_authenticated') === 'true';
+    if (!isAuth) {
+      navigate('/landing');  
+    }
+  }, [navigate]);
 
   return (
     <div>
-      <h2>Selamat datang</h2>
-      <p>Silakan pilih:</p>
-      <button onClick={() => navigate('/auth/login')}>Login</button>
-      <button onClick={() => navigate('/auth/register')}>Register</button>
+      <h1>Welcome to Home Page</h1>
+      {/* Konten home lainnya */}
     </div>
-  )
+  );
 }
