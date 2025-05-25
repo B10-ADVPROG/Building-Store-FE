@@ -3,7 +3,10 @@ import ProductCard from '../components/ProductCard.jsx';
 import CreateProductModal from '../components/CreateProductModal.jsx';
 import EditProductModal from '../components/EditProductModal.jsx';
 
-const DUMMY_BUILDING_PRODUCTS = [ /* ... */ ];
+const DUMMY_BUILDING_PRODUCTS = [ 
+  { id: 1, productName: 'Semen Portland', productPrice: 75000, productStock: 150 },
+  { id: 2, productName: 'Bata Merah', productPrice: 800, productStock: 5000 }
+];
 
 export default function ProductList() {
   const [products, setProducts] = useState([]);
@@ -17,13 +20,18 @@ export default function ProductList() {
 
   useEffect(() => {
     const fetchProducts = async () => {
+      const token = localStorage.getItem("token") || "";
+
       try {
+        let headers = {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        }
+        console.log("Headers: ", headers);
+
         const response = await fetch('https://slim-blythe-williamalxndr-aab64bd4.koyeb.app/product/', {
           method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer Token',
-          },
+          headers,
         });
 
         const text = await response.text();
@@ -49,13 +57,19 @@ export default function ProductList() {
     if (!window.confirm('Are you sure you want to delete this building material?')) return;
     setDeletingId(id);
     try {
+      const token = localStorage.getItem("token") || "";
+      
+      let headers = {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      }
+
       const response = await fetch(`https://slim-blythe-williamalxndr-aab64bd4.koyeb.app/product/delete/${id}/`, {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer Token',
-        },
+        headers,
       });
+
+      console.log("Headers: ", headers);
 
       if (!response.ok) throw new Error('Failed to delete product');
       setProducts(products.filter(product => product.id !== id));
