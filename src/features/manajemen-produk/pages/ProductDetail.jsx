@@ -21,7 +21,25 @@ export default function ProductDetail() {
   useEffect(() => {
     const fetchProductDetail = async () => {
       const token = localStorage.getItem("token") || "";
+
+      
       try {
+        let body = JSON.stringify({ "token": token });
+        console.log("Body: ", body);
+
+        const authResponse = await fetch("https://slim-blythe-williamalxndr-aab64bd4.koyeb.app/auth/auth-admin/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: body,
+        });
+
+        console.log("Auth Response Status:", authResponse.status);
+
+        const authResponseRaw = await authResponse.text();
+        console.log("Auth Response Body:", authResponseRaw);
+
+        if (!authResponse.ok) throw new Error("Unauthorized");
+
         const response = await fetch(`https://slim-blythe-williamalxndr-aab64bd4.koyeb.app/product/detail/${id}/`, {
           headers: {
             "Content-Type": "application/json",
