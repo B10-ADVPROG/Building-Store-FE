@@ -41,7 +41,7 @@ export default function ProductForm({ mode, onSuccess, onCancel, productId }) {
 
           const headers = { 
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer ${token}',
+            'Authorization': `Bearer ${token}`,
           };
           
           const response = await fetch(`https://slim-blythe-williamalxndr-aab64bd4.koyeb.app/product/detail/${id}/`, {

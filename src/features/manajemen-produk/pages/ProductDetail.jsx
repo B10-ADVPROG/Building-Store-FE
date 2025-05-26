@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { FaEdit, FaTrash, FaArrowLeft } from 'react-icons/fa';
+import EditProductModal from '../components/EditProductModal'; // Make sure this path is correct
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -8,20 +10,22 @@ export default function ProductDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
 
-  // Dummy product data sesuai field yang ada
+  // Dummy product data
   const DUMMY_PRODUCT = {
     id,
-    name: 'Semen Portland',
-    price: 75000,
-    stock: 150,
-    description: 'High-quality cement for construction.',
+    productName: 'Semen Portland',
+    productPrice: 75000,
+    productStock: 150,
+    productDescription: 'High-quality cement for construction.',
+    productSupplier: 'Local Supplier',
+    productUnit: 'pcs'
   };
 
   useEffect(() => {
     const fetchProductDetail = async () => {
       const token = localStorage.getItem("token") || "";
-
       
       try {
         let body = JSON.stringify({ "token": token });
@@ -49,7 +53,7 @@ export default function ProductDetail() {
 
         if (!response.ok) {
           if (response.status === 401 || response.status === 403) {
-            navigate("/unauthorized"); // arahkan jika token tidak valid
+            navigate("/unauthorized");
             return;
           }
           throw new Error('Failed to load product details');
@@ -70,7 +74,7 @@ export default function ProductDetail() {
   }, [id, navigate]);
 
   const handleDelete = async () => {
-    if (!window.confirm(`Are you sure you want to delete ${product.name}?`)) {
+    if (!window.confirm(`Are you sure you want to delete ${product.productName}?`)) {
       return;
     }
 
@@ -103,6 +107,11 @@ export default function ProductDetail() {
     }
   };
 
+  const handleProductUpdated = (updatedProduct) => {
+    setProduct(updatedProduct);
+    setShowEditModal(false);
+  };
+
   if (loading) {
     return (
       <div style={{ padding: '2rem', textAlign: 'center' }}>
@@ -124,10 +133,14 @@ export default function ProductDetail() {
             border: 'none',
             borderRadius: '4px',
             marginTop: '1rem',
-            cursor: 'pointer'
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            margin: '0 auto'
           }}
         >
-          Back to Products
+          <FaArrowLeft /> Back to Products
         </button>
       </div>
     );
@@ -139,9 +152,20 @@ export default function ProductDetail() {
         display: 'flex', 
         justifyContent: 'space-between', 
         alignItems: 'center', 
-        marginBottom: '1.5rem' 
+        marginBottom: '1.5rem',
+        backgroundColor: '#0a192f',
+        padding: '1rem',
+        borderRadius: '8px',
+        boxShadow: '0 2px 10px rgba(0,0,0,0.2)'
       }}>
-        <h1 style={{ fontSize: '1.8rem', color: '#2c3e50' }}>{product.productName}</h1>
+        <h1 style={{ 
+          fontSize: '1.8rem', 
+          color: 'white',
+          margin: 0,
+          fontWeight: '600'
+        }}>
+          {product.productName}
+        </h1>
         <Link 
           to="/produk" 
           style={{
@@ -149,10 +173,13 @@ export default function ProductDetail() {
             background: '#6c757d',
             color: 'white',
             textDecoration: 'none',
-            borderRadius: '4px'
+            borderRadius: '4px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem'
           }}
         >
-          Back to List
+          <FaArrowLeft /> Back
         </Link>
       </div>
 
@@ -173,17 +200,18 @@ export default function ProductDetail() {
         display: 'grid',
         gridTemplateColumns: '1fr 1fr',
         gap: '2rem',
-        backgroundColor: 'white',
-        border: '1px solid #e0e0e0',
-        borderRadius: '8px',
+        backgroundColor: '#0a192f',
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+        borderRadius: '12px',
         padding: '2rem',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+        boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
+        color: 'white'
       }}>
         <div>
           <div style={{ marginBottom: '1.5rem' }}>
             <h3 style={{ 
               fontSize: '1rem',
-              color: '#7f8c8d',
+              color: '#a8b2d1',
               marginBottom: '0.5rem'
             }}>
               PRICE PER UNIT
@@ -191,7 +219,7 @@ export default function ProductDetail() {
             <p style={{ 
               fontSize: '1.75rem',
               fontWeight: 'bold',
-              color: '#2c3e50',
+              color: '#64ffda',
               margin: 0
             }}>
               {new Intl.NumberFormat('id-ID', { 
@@ -205,7 +233,7 @@ export default function ProductDetail() {
           <div style={{ marginBottom: '1.5rem' }}>
             <h3 style={{ 
               fontSize: '1rem',
-              color: '#7f8c8d',
+              color: '#a8b2d1',
               marginBottom: '0.5rem'
             }}>
               STOCK AVAILABLE
@@ -213,7 +241,7 @@ export default function ProductDetail() {
             <p style={{ 
               fontSize: '1.75rem',
               fontWeight: 'bold',
-              color: product.productStock > 10 ? '#27ae60' : '#e74c3c',
+              color: product.productStock > 10 ? '#64ffda' : '#ff6b6b',
               margin: 0
             }}>
               {product.productStock} {product.productUnit || 'pcs'}
@@ -223,12 +251,12 @@ export default function ProductDetail() {
           <div>
             <h3 style={{ 
               fontSize: '1rem',
-              color: '#7f8c8d',
+              color: '#a8b2d1',
               marginBottom: '0.5rem'
             }}>
               LAST UPDATED
             </h3>
-            <p style={{ fontSize: '1rem', margin: 0, color: "black" }}>
+            <p style={{ fontSize: '1rem', margin: 0, color: "#ccd6f6" }}>
               {product.lastUpdated || 'Unknown'}
             </p>
           </div>
@@ -238,12 +266,12 @@ export default function ProductDetail() {
           <div style={{ marginBottom: '1.5rem' }}>
             <h3 style={{ 
               fontSize: '1rem',
-              color: '#7f8c8d',
+              color: '#a8b2d1',
               marginBottom: '0.5rem'
             }}>
               SUPPLIER
             </h3>
-            <p style={{ fontSize: '1rem', margin: 0, color: "black" }}>
+            <p style={{ fontSize: '1rem', margin: 0, color: "#ccd6f6" }}>
               {product.productSupplier || 'Local Supplier'}
             </p>
           </div>
@@ -251,12 +279,12 @@ export default function ProductDetail() {
           <div>
             <h3 style={{ 
               fontSize: '1rem',
-              color: '#7f8c8d',
+              color: '#a8b2d1',
               marginBottom: '0.5rem'
             }}>
               DESCRIPTION
             </h3>
-            <p style={{ fontSize: '1rem', margin: 0, color: "black" }}>
+            <p style={{ fontSize: '1rem', margin: 0, color: "#ccd6f6" }}>
               {product.productDescription || 'No description available'}
             </p>
           </div>
@@ -269,36 +297,61 @@ export default function ProductDetail() {
         gap: '1rem',
         marginTop: '1.5rem'
       }}>
-        <Link
-          to={`/produk/edit/${id}`}
+        <button
+          onClick={() => setShowEditModal(true)}
           style={{
             padding: '0.75rem 1.5rem',
             background: '#3498db',
             color: 'white',
-            textDecoration: 'none',
-            borderRadius: '4px',
-            fontWeight: 'bold'
+            border: 'none',
+            borderRadius: '6px',
+            fontWeight: 'bold',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            transition: 'all 0.3s ease'
           }}
         >
-          Edit Material
-        </Link>
+          <FaEdit size={16} /> Edit
+        </button>
         <button
           style={{
             padding: '0.75rem 1.5rem',
             background: isDeleting ? '#dc3545aa' : '#e74c3c',
             color: 'white',
             border: 'none',
-            borderRadius: '4px',
+            borderRadius: '6px',
             fontWeight: 'bold',
             cursor: isDeleting ? 'not-allowed' : 'pointer',
-            opacity: isDeleting ? 0.8 : 1
+            opacity: isDeleting ? 0.8 : 1,
+            transition: 'all 0.3s ease',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem'
           }}
           onClick={handleDelete}
           disabled={isDeleting}
         >
-          {isDeleting ? 'Deleting...' : 'Delete Material'}
+          {isDeleting ? (
+            'Deleting...'
+          ) : (
+            <>
+              <FaTrash size={16} /> Delete
+            </>
+          )}
         </button>
       </div>
+
+      {showEditModal && (
+        <EditProductModal
+          isOpen={showEditModal}
+          onClose={() => setShowEditModal(false)}
+          productId={id}
+          currentProduct={product}
+          onSuccess={handleProductUpdated}
+        />
+      )}
     </div>
   );
 }
