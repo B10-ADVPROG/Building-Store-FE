@@ -19,9 +19,8 @@ class SupplierApi {
 
     static async getAllSuppliers() {
         try {
-            const endpoint = process.env.NODE_ENV === 'production' 
-                ? '/supplier/' 
-                : '/api/suppliers';
+            // Change this line to use the correct endpoint
+            const endpoint = '/api/suppliers';
                 
             console.log('Fetching suppliers from:', API_BASE_URL + endpoint);
             const response = await fetch(API_BASE_URL + endpoint, {
@@ -54,9 +53,7 @@ class SupplierApi {
 
     static async getSupplierById(id) {
         try {
-            const endpoint = process.env.NODE_ENV === 'production' 
-                ? `/supplier/detail/${id}/` 
-                : `/api/suppliers/${id}`;
+            const endpoint = `/api/suppliers/${id}`;
                 
             const response = await fetch(API_BASE_URL + endpoint, {
                 method: 'GET',
@@ -80,9 +77,7 @@ class SupplierApi {
 
     static async createSupplier(supplierData) {
         try {
-            const endpoint = process.env.NODE_ENV === 'production' 
-                ? '/supplier/create/' 
-                : '/api/suppliers';
+            const endpoint = '/api/suppliers';
                 
             const response = await fetch(API_BASE_URL + endpoint, {
                 method: 'POST',
@@ -108,9 +103,7 @@ class SupplierApi {
 
     static async updateSupplier(id, supplierData) {
         try {
-            const endpoint = process.env.NODE_ENV === 'production' 
-                ? `/supplier/edit/${id}/` 
-                : `/api/suppliers/${id}`;
+            const endpoint = `/api/suppliers/${id}`;
                 
             const response = await fetch(API_BASE_URL + endpoint, {
                 method: 'PUT',
@@ -136,9 +129,7 @@ class SupplierApi {
 
     static async deleteSupplier(id) {
         try {
-            const endpoint = process.env.NODE_ENV === 'production' 
-                ? `/supplier/delete/${id}/` 
-                : `/api/suppliers/${id}`;
+            const endpoint = `/api/suppliers/${id}`;
                 
             const response = await fetch(API_BASE_URL + endpoint, {
                 method: 'DELETE',
