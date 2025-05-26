@@ -3,14 +3,50 @@ import SupplierCard from '../components/SupplierCard.jsx';
 import CreateSupplierModal from '../components/CreateSupplierModal.jsx';
 import EditSupplierModal from '../components/EditSupplierModal.jsx';
 import SupplierApi from '../api/supplierApi';
+import { motion } from 'framer-motion';
 
-// Dummy data for suppliers
+// Dummy data for suppliers with UUID format
 const DUMMY_SUPPLIERS = [
-  { id: 1, name: 'PT Semen Jaya', contactName: 'Budi Santoso', phone: '08123456789', address: 'Jl. Industri No. 123, Jakarta', email: 'info@semenjaya.com' },
-  { id: 2, name: 'CV Bata Prima', contactName: 'Siti Rahayu', phone: '08567891234', address: 'Jl. Pembangunan No. 45, Bandung', email: 'sales@bataprima.co.id' },
-  { id: 3, name: 'PT Besi Kokoh', contactName: 'Anton Wijaya', phone: '08234567890', address: 'Jl. Logam No. 67, Surabaya', email: 'contact@besikokoh.com' },
-  { id: 4, name: 'UD Kayu Indah', contactName: 'Dewi Anggraini', phone: '08765432109', address: 'Jl. Hutan No. 89, Medan', email: 'dewi@kayuindah.com' },
-  { id: 5, name: 'PT Cat Warna', contactName: 'Rudi Hermawan', phone: '08912345678', address: 'Jl. Pelangi No. 12, Yogyakarta', email: 'sales@catwarna.id' }
+  { 
+    id: '550e8400-e29b-41d4-a716-446655440001', 
+    name: 'PT Semen Jaya', 
+    contactName: 'Budi Santoso', 
+    phone: '08123456789', 
+    address: 'Jl. Industri No. 123, Jakarta', 
+    email: 'info@semenjaya.com' 
+  },
+  { 
+    id: '550e8400-e29b-41d4-a716-446655440002', 
+    name: 'CV Bata Prima', 
+    contactName: 'Siti Rahayu', 
+    phone: '08567891234', 
+    address: 'Jl. Pembangunan No. 45, Bandung', 
+    email: 'sales@bataprima.co.id' 
+  },
+  { 
+    id: '550e8400-e29b-41d4-a716-446655440003', 
+    name: 'PT Besi Kokoh', 
+    contactName: 'Anton Wijaya', 
+    phone: '08234567890', 
+    address: 'Jl. Logam No. 67, Surabaya', 
+    email: 'contact@besikokoh.com' 
+  },
+  { 
+    id: '550e8400-e29b-41d4-a716-446655440004', 
+    name: 'UD Kayu Indah', 
+    contactName: 'Dewi Anggraini', 
+    phone: '08765432109', 
+    address: 'Jl. Hutan No. 89, Medan', 
+    email: 'dewi@kayuindah.com' 
+  },
+  { 
+    id: '550e8400-e29b-41d4-a716-446655440005', 
+    name: 'PT Cat Warna', 
+    contactName: 'Rudi Hermawan', 
+    phone: '08912345678', 
+    address: 'Jl. Pelangi No. 12, Yogyakarta', 
+    email: 'sales@catwarna.id' 
+  }
 ];
 
 export default function SupplierList() {
@@ -25,42 +61,42 @@ export default function SupplierList() {
 
   useEffect(() => {
     const fetchSuppliers = async () => {
-        try {
-            console.log('Fetching suppliers...');
-            const data = await SupplierApi.getAllSuppliers();
-            console.log('Received suppliers:', data);
-            setSuppliers(data);
-            setUsingDummyData(false);
-        } catch (err) {
-            console.error('Error fetching suppliers:', err);
-            setError(`${err.message} - Using dummy data instead`);
-            setSuppliers(DUMMY_SUPPLIERS);
-            setUsingDummyData(true);
-        } finally {
-            setLoading(false);
-        }
-      };
+      try {
+        console.log('Fetching suppliers...');
+        const data = await SupplierApi.getAllSuppliers();
+        console.log('Received suppliers:', data);
+        setSuppliers(data);
+        setUsingDummyData(false);
+      } catch (err) {
+        console.error('Error fetching suppliers:', err);
+        setError(`${err.message} - Using dummy data instead`);
+        setSuppliers(DUMMY_SUPPLIERS);
+        setUsingDummyData(true);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-      fetchSuppliers();
+    fetchSuppliers();
   }, []);
 
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this supplier?')) {
-        return;
+      return;
     }
 
     setDeletingId(id);
     try {
-        await SupplierApi.deleteSupplier(id);
-        setSuppliers(suppliers.filter(supplier => supplier.id !== id));
-        setError(null);
+      await SupplierApi.deleteSupplier(id);
+      setSuppliers(suppliers.filter(supplier => supplier.id !== id));
+      setError(null);
     } catch (err) {
-        console.error('Error deleting supplier:', err);
-        setError(err.message);
+      console.error('Error deleting supplier:', err);
+      setError(err.message);
     } finally {
-        setDeletingId(null);
+      setDeletingId(null);
     }
-};
+  };
 
   const handleSupplierCreated = (newSupplier) => {
     setSuppliers(prev => [...prev, newSupplier]);
@@ -84,71 +120,67 @@ export default function SupplierList() {
   };
 
   if (loading) {
-    return <div style={{ padding: '1rem' }}>Loading suppliers...</div>;
+    return <div className="container py-4"><div className="spinner-border text-primary" role="status"></div></div>;
   }
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
   return (
-    <div style={{ padding: '1rem' }}>
+    <div className="container-fluid py-4">
       {usingDummyData && (
-        <div style={{ 
-          backgroundColor: '#fff3cd', 
-          color: '#856404',
-          padding: '0.75rem',
-          marginBottom: '1rem',
-          border: '1px solid #ffeeba',
-          borderRadius: '4px'
-        }}>
-          Warning: Using sample supplier data because server couldn't be reached
+        <div className="alert alert-warning">
+          <i className="fas fa-exclamation-triangle me-2"></i>
+          Using sample supplier data because server couldn't be reached
         </div>
       )}
       
       {error && !usingDummyData && (
-        <div style={{ color: 'red', padding: '1rem' }}>{error}</div>
+        <div className="alert alert-danger">{error}</div>
       )}
 
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
-        marginBottom: '1rem' 
-      }}>
-        <h1>Supplier Directory</h1>
-        <button
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h2 className="mb-0 text-primary">Supplier Directory</h2>
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           onClick={() => setShowCreateModal(true)}
-          style={{
-            padding: '0.5rem 1rem',
-            background: '#007bff',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer'
-          }}
+          className="btn btn-primary"
         >
+          <i className="fas fa-plus me-2"></i>
           Add New Supplier
-        </button>
+        </motion.button>
       </div>
 
       {suppliers.length === 0 ? (
-        <div style={{ textAlign: 'center', margin: '2rem' }}>
-          No suppliers found. Add your first supplier!
+        <div className="text-center py-5">
+          <p className="text-white fs-5">No suppliers found. Add your first supplier!</p>
         </div>
       ) : (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-          gap: '1rem'
-        }}>
+        <motion.div 
+          className="row g-4"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
           {suppliers.map(supplier => (
-            <SupplierCard 
-              key={supplier.id}
-              supplier={supplier}
-              onDelete={handleDelete}
-              isDeleting={deletingId === supplier.id}
-              onEdit={() => openEditModal(supplier.id)}
-              onSupplierUpdated={handleSupplierUpdated}
-            />
+            <div key={supplier.id} className="col-md-6 col-lg-4 col-xl-3">
+              <SupplierCard 
+                supplier={supplier}
+                onDelete={handleDelete}
+                isDeleting={deletingId === supplier.id}
+                onEdit={() => openEditModal(supplier.id)}
+              />
+            </div>
           ))}
-        </div>
+        </motion.div>
       )}
 
       {showCreateModal && (

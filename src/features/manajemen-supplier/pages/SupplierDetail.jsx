@@ -14,7 +14,7 @@ export default function SupplierDetail() {
   const DUMMY_SUPPLIER = {
     id: id,
     name: 'PT Semen Jaya',
-    contactName: 'Budi Santoso',
+    contactPerson: 'Budi Santoso',
     phone: '08123456789',
     address: 'Jl. Industri No. 123, Jakarta',
     email: 'info@semenjaya.com',
@@ -135,8 +135,8 @@ export default function SupplierDetail() {
             <h3 style={{ fontSize: '1rem', color: '#7f8c8d', marginBottom: '0.5rem' }}>
               CONTACT PERSON
             </h3>
-            <p style={{ fontSize: '1.2rem', fontWeight: 'bold', margin: 0 }}>
-              {supplier.contactName}
+            <p style={{ fontSize: '1.2rem', fontWeight: 'bold', margin: 0, color: '#000' }}>
+              {supplier.contactPerson}
             </p>
           </div>
 
@@ -144,7 +144,7 @@ export default function SupplierDetail() {
             <h3 style={{ fontSize: '1rem', color: '#7f8c8d', marginBottom: '0.5rem' }}>
               PHONE
             </h3>
-            <p style={{ fontSize: '1.2rem', margin: 0 }}>
+            <p style={{ fontSize: '1.2rem', margin: 0, color: '#000' }}>
               {supplier.phone}
             </p>
           </div>
@@ -157,7 +157,7 @@ export default function SupplierDetail() {
             <h3 style={{ fontSize: '1rem', color: '#7f8c8d', marginBottom: '0.5rem' }}>
               EMAIL
             </h3>
-            <p style={{ fontSize: '1.2rem', margin: 0 }}>
+            <p style={{ fontSize: '1.2rem', margin: 0, color: '#000' }}>
               {supplier.email}
             </p>
           </div>
@@ -166,7 +166,7 @@ export default function SupplierDetail() {
             <h3 style={{ fontSize: '1rem', color: '#7f8c8d', marginBottom: '0.5rem' }}>
               ADDRESS
             </h3>
-            <p style={{ fontSize: '1.2rem', margin: 0 }}>
+            <p style={{ fontSize: '1.2rem', margin: 0, color: '#000' }}>
               {supplier.address}
             </p>
           </div>
@@ -179,7 +179,7 @@ export default function SupplierDetail() {
               <h3 style={{ fontSize: '1rem', color: '#7f8c8d', marginBottom: '0.5rem' }}>
                 DESCRIPTION
               </h3>
-              <p style={{ fontSize: '1rem', margin: 0 }}>
+              <p style={{ fontSize: '1rem', margin: 0, color: '#000' }}>
                 {supplier.description}
               </p>
             </div>
@@ -193,7 +193,7 @@ export default function SupplierDetail() {
               <h3 style={{ fontSize: '1rem', color: '#7f8c8d', marginBottom: '0.5rem' }}>
                 NOTES
               </h3>
-              <p style={{ fontSize: '1rem', margin: 0 }}>
+              <p style={{ fontSize: '1rem', margin: 0, color: '#000' }}>
                 {supplier.notes}
               </p>
             </div>
