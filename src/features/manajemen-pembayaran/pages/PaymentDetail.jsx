@@ -13,11 +13,10 @@ export default function PaymentDetail() {
   // Dummy payment data
   const DUMMY_PAYMENT = {
     paymentId: id,
-    customerId: 'C12345',
+    customerName: 'John Doe',
     amount: 500000,
     paymentMethod: 'CASH',
     status: 'LUNAS',
-    transactionId: 'T-001',
     createdAt: '2025-05-20T10:30:00',
     updatedAt: '2025-05-20T10:30:00'
   };
@@ -182,19 +181,10 @@ export default function PaymentDetail() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
           <div>
             <h3 style={{ fontSize: '1rem', color: '#7f8c8d', marginBottom: '0.5rem' }}>
-              CUSTOMER ID
+              CUSTOMER NAME
             </h3>
             <p style={{ fontSize: '1.2rem', fontWeight: 'bold', margin: 0, color: '#000' }}>
-              {payment.customerId}
-            </p>
-          </div>
-
-          <div>
-            <h3 style={{ fontSize: '1rem', color: '#7f8c8d', marginBottom: '0.5rem' }}>
-              TRANSACTION ID
-            </h3>
-            <p style={{ fontSize: '1.2rem', margin: 0, color: '#000' }}>
-              {payment.transactionId}
+              {payment.customerName}
             </p>
           </div>
         </div>

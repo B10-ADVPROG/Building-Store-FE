@@ -11,31 +11,28 @@ import { motion } from 'framer-motion';
 const DUMMY_PAYMENTS = [
   { 
     paymentId: '550e8400-e29b-41d4-a716-446655440001', 
-    customerId: 'C12345',
+    customerName: 'John Doe',
     amount: 500000,
     paymentMethod: 'CASH',
     status: 'LUNAS',
-    transactionId: 'T-001',
     createdAt: '2025-05-20T10:30:00',
     updatedAt: '2025-05-20T10:30:00'
   },
   { 
     paymentId: '550e8400-e29b-41d4-a716-446655440002', 
-    customerId: 'C12346',
+    customerName: 'Jane Smith',
     amount: 1200000,
     paymentMethod: 'BANK_TRANSFER',
     status: 'CICILAN',
-    transactionId: 'T-002',
     createdAt: '2025-05-21T14:45:00',
     updatedAt: '2025-05-21T14:45:00'
   },
   { 
     paymentId: '550e8400-e29b-41d4-a716-446655440003', 
-    customerId: 'C12347',
+    customerName: 'Andrew Johnson',
     amount: 750000,
     paymentMethod: 'CREDIT_CARD',
     status: 'LUNAS',
-    transactionId: 'T-003',
     createdAt: '2025-05-22T09:15:00',
     updatedAt: '2025-05-22T09:15:00'
   }
@@ -55,33 +52,26 @@ export default function PaymentList() {
   useEffect(() => {
     const fetchPayments = async () => {
       try {
-        const token = localStorage.getItem("token") || "";
-
-        try {
-          let body = JSON.stringify({ "token": token });
-          const authResponse = await fetch("http://localhost:8080/auth/auth-cashier/", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: body,
-          });
-
-          if (!authResponse.ok) throw new Error("Unauthorized");
-
-          const data = await PaymentApi.getAllPayments();
+        const data = await PaymentApi.getAllPayments();
+        console.log("API response:", data);
+        
+        // Check if data is an array, if not, try to extract the array from the response
+        if (Array.isArray(data)) {
           setPayments(data);
-          setUsingDummyData(false);
-        } catch (err) {
-          if (err.message === "Unauthorized" || err.message === "Forbidden") {
-            navigate("/unauthorized");
-          } else {
-            console.error('Error:', err.message);
-            setError(`${err.message} - Using dummy data instead`);
-            setPayments(DUMMY_PAYMENTS);
-            setUsingDummyData(true);
-          }
+        } else if (data && typeof data === 'object') {
+          // Try common response patterns
+          const paymentsArray = data.data || data.payments || data.content || data.results || [];
+          console.log("Extracted payments array:", paymentsArray);
+          setPayments(Array.isArray(paymentsArray) ? paymentsArray : []);
+        } else {
+          // Fallback to dummy data
+          console.error('Unexpected API response format:', data);
+          setPayments(DUMMY_PAYMENTS);
+          setUsingDummyData(true);
+          setError('Received invalid data format from server - using dummy data instead');
         }
       } catch (err) {
-        console.error('Error:', err.message);
+        console.error('Error fetching payments:', err);
         setError(`${err.message} - Using dummy data instead`);
         setPayments(DUMMY_PAYMENTS);
         setUsingDummyData(true);
@@ -110,7 +100,16 @@ export default function PaymentList() {
   };
 
   const handlePaymentCreated = (newPayment) => {
-    setPayments(prev => [...prev, newPayment]);
+    if (!newPayment) {
+      console.error("Received undefined payment in handlePaymentCreated");
+      return;
+    }
+
+    // If the API response has a 'payment' property, use that
+    const paymentObj = newPayment.payment ? { ...newPayment.payment, paymentId: newPayment.paymentId } : newPayment;
+
+    console.log("Adding new payment:", paymentObj);
+    setPayments(prev => [...prev, paymentObj]);
   };
 
   const openEditModal = (paymentId) => {
@@ -176,22 +175,19 @@ export default function PaymentList() {
           <p className="text-white fs-5">No payments found. Add your first payment!</p>
         </div>
       ) : (
-        <motion.div 
-          className="row g-4"
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          {payments.map(payment => (
-            <div key={payment.paymentId} className="col-md-6 col-lg-4 col-xl-3">
-              <PaymentCard 
-                payment={payment}
-                onDelete={handleDelete}
-                isDeleting={deletingId === payment.paymentId}
-                onEdit={() => openEditModal(payment.paymentId)}
-              />
-            </div>
-          ))}
+        <motion.div className="row g-4" variants={containerVariants} initial="hidden" animate="visible">
+          {payments
+            .filter(payment => payment && payment.paymentId) // Only include payments with valid IDs
+            .map((payment, index) => (
+              <div key={payment.paymentId || `payment-${index}`} className="col-md-6 col-lg-4 col-xl-3">
+                <PaymentCard 
+                  payment={payment}
+                  onDelete={handleDelete}
+                  isDeleting={deletingId === payment.paymentId}
+                  onEdit={() => openEditModal(payment.paymentId)}
+                />
+              </div>
+            ))}
         </motion.div>
       )}
 

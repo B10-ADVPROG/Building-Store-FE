@@ -5,14 +5,13 @@ import FormSubmitButton from '../../manajemen-produk/components/FormSubmitButton
 import ConfirmationModal from '../../manajemen-produk/components/ConfirmationModal';
 import PaymentApi from '../api/paymentApi';
 
-// Dummy fallback data
+// Update DUMMY_PAYMENT
 const DUMMY_PAYMENT = {
   paymentId: 'dummy-uuid-123',
-  customerId: 'customer-001',
+  customerName: 'John Doe',
   amount: 750000,
   paymentMethod: 'CASH',
   status: 'LUNAS',
-  transactionId: 'transaction-001',
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString()
 };
@@ -24,11 +23,10 @@ export default function PaymentForm({ mode, onSuccess, onCancel, paymentId }) {
   const id = paymentId || paramId;
   
   const [formData, setFormData] = useState({
-    customerId: '',
+    customerName: '',
     amount: '',
     paymentMethod: 'CASH',
     status: 'LUNAS',
-    transactionId: ''
   });
 
   const [showModal, setShowModal] = useState(false);
@@ -46,22 +44,20 @@ export default function PaymentForm({ mode, onSuccess, onCancel, paymentId }) {
           const paymentData = await PaymentApi.getPaymentById(id);
           
           setFormData({
-            customerId: paymentData.customerId || '',
+            customerName: paymentData.customerName || '',
             amount: paymentData.amount || '',
             paymentMethod: paymentData.paymentMethod || 'CASH',
-            status: paymentData.status || 'LUNAS',
-            transactionId: paymentData.transactionId || ''
+            status: paymentData.status || 'LUNAS'
           });
           
         } catch (err) {
           console.error('Error fetching payment:', err);
           setError(err.message + ' - using dummy data as fallback');
           setFormData({
-            customerId: DUMMY_PAYMENT.customerId,
+            customerName: DUMMY_PAYMENT.customerName,
             amount: DUMMY_PAYMENT.amount,
             paymentMethod: DUMMY_PAYMENT.paymentMethod,
-            status: DUMMY_PAYMENT.status,
-            transactionId: DUMMY_PAYMENT.transactionId
+            status: DUMMY_PAYMENT.status
           });  
         } finally {
           setLoadingInitial(false);
@@ -87,15 +83,36 @@ export default function PaymentForm({ mode, onSuccess, onCancel, paymentId }) {
     setError(null);
 
     try {
+      let createdOrUpdatedPayment;
+      
       if (mode === 'create') {
-        await PaymentApi.createPayment(formData);
+        console.log('Creating payment with data:', formData);
+        createdOrUpdatedPayment = await PaymentApi.createPayment(formData);
+        console.log('Payment API response:', createdOrUpdatedPayment);
       } else {
-        // In edit mode, we're only updating the payment status
-        await PaymentApi.updatePaymentStatus(id, formData.status);
+        createdOrUpdatedPayment = await PaymentApi.updatePaymentStatus(id, formData.status);
       }
       
       if (onSuccess) {
-        onSuccess();
+        // Make sure we have a valid payment to return
+        if (createdOrUpdatedPayment && createdOrUpdatedPayment.paymentId) {
+          console.log('Calling onSuccess with:', createdOrUpdatedPayment);
+          onSuccess(createdOrUpdatedPayment);
+        } else {
+          console.warn('API did not return a valid payment object, creating fallback');
+          // If API didn't return the payment, create one from form data
+          const fallbackPayment = {
+            paymentId: 'temp-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9),
+            customerName: formData.customerName,
+            amount: parseInt(formData.amount),
+            paymentMethod: formData.paymentMethod,
+            status: formData.status,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          };
+          console.log('Using fallback payment:', fallbackPayment);
+          onSuccess(fallbackPayment);
+        }
       } else {
         alert(mode === 'create' ? 'Payment created successfully!' : 'Payment updated successfully!');
         navigate('/pembayaran');
@@ -122,9 +139,9 @@ export default function PaymentForm({ mode, onSuccess, onCancel, paymentId }) {
         {mode === 'create' && (
           <>
             <FormInput 
-              label="Customer ID" 
-              name="customerId" 
-              value={formData.customerId} 
+              label="Customer Name" 
+              name="customerName" 
+              value={formData.customerName} 
               onChange={handleChange} 
               required 
             />
@@ -136,13 +153,7 @@ export default function PaymentForm({ mode, onSuccess, onCancel, paymentId }) {
               onChange={handleChange} 
               required 
             />
-            <FormInput 
-              label="Transaction ID" 
-              name="transactionId" 
-              value={formData.transactionId} 
-              onChange={handleChange} 
-              required 
-            />
+            {/* Transaction ID field removed */}
           </>
         )}
         

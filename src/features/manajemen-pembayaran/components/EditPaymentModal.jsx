@@ -1,8 +1,13 @@
-import { useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { FaTimes } from 'react-icons/fa';
 import PaymentForm from './PaymentForm';
+import PaymentApi from '../api/paymentApi';
 
 export default function EditPaymentModal({ isOpen, onClose, paymentId, onSuccess }) {
+  const [successMessage, setSuccessMessage] = useState(null);
+  const [paymentData, setPaymentData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const modalRef = useRef(null);
 
   useEffect(() => {
@@ -29,7 +34,51 @@ export default function EditPaymentModal({ isOpen, onClose, paymentId, onSuccess
     };
   }, [isOpen, onClose]);
 
+  useEffect(() => {
+    const fetchPayment = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await PaymentApi.getPaymentById(paymentId);
+        setPaymentData(data);
+      } catch (err) {
+        console.error('Error fetching payment:', err);
+        setError('Failed to load payment data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (isOpen && paymentId) {
+      fetchPayment();
+    }
+  }, [isOpen, paymentId]);
+
+  const handleSuccess = (updatedPayment) => {
+    setSuccessMessage('Payment updated successfully!');
+
+    if (onSuccess) onSuccess(updatedPayment);
+
+    setTimeout(() => {
+      setSuccessMessage(null);
+      onClose();
+    }, 1500);
+  };
+
+  const handleSave = async (updatedData) => {
+    try {
+      const newPaymentData = await PaymentApi.updatePaymentStatus(paymentId, updatedData.status);
+      handleSuccess(newPaymentData);
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
   if (!isOpen) return null;
+
+  if (loading) return <div>Loading payment data...</div>;
+  if (error) return <div>Error: {error}</div>;
+  if (!paymentData) return <div>No payment data loaded.</div>;
 
   return (
     <div style={{
@@ -43,6 +92,7 @@ export default function EditPaymentModal({ isOpen, onClose, paymentId, onSuccess
       alignItems: 'center',
       justifyContent: 'center',
       zIndex: 1000,
+      padding: '1rem',
     }}>
       <div
         ref={modalRef}
@@ -101,12 +151,26 @@ export default function EditPaymentModal({ isOpen, onClose, paymentId, onSuccess
           </p>
         </div>
 
-        <PaymentForm
-          mode="edit"
-          paymentId={paymentId}
-          onCancel={onClose}
-          onSuccess={onSuccess}
-        />
+        {successMessage ? (
+          <div
+            style={{
+              padding: '1rem',
+              color: 'green',
+              textAlign: 'center',
+              fontSize: '1.1rem',
+            }}
+          >
+            {successMessage}
+          </div>
+        ) : (
+          <PaymentForm
+            mode="edit"
+            initialValues={paymentData}
+            onSubmit={handleSave}
+            onCancel={onClose}
+            paymentId={paymentId}
+          />
+        )}
 
         <style jsx global>{`
           @keyframes slideUp {
