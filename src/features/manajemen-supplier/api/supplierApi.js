@@ -1,6 +1,7 @@
 const API_BASE_URL = process.env.NODE_ENV === 'production' 
     ? 'https://slim-blythe-williamalxndr-aab64bd4.koyeb.app'
-    : 'http://localhost:8080/api/suppliers';
+    : 'http://localhost:8080';
+
 class SupplierApi {
     static getAuthHeaders() {
         // Get authentication token - check common storage locations
@@ -18,11 +19,15 @@ class SupplierApi {
 
     static async getAllSuppliers() {
         try {
-            console.log('Fetching suppliers from:', API_BASE_URL);
-            const response = await fetch(API_BASE_URL, {
+            const endpoint = process.env.NODE_ENV === 'production' 
+                ? '/supplier/' 
+                : '/api/suppliers';
+                
+            console.log('Fetching suppliers from:', API_BASE_URL + endpoint);
+            const response = await fetch(API_BASE_URL + endpoint, {
                 method: 'GET',
                 headers: this.getAuthHeaders(),
-                credentials: 'include'  // Include cookies for session-based auth
+                credentials: 'include'
             });
             
             console.log('Response status:', response.status);
@@ -30,7 +35,6 @@ class SupplierApi {
                 const errorText = await response.text();
                 console.error('Error response:', errorText);
                 
-                // Check for auth errors specifically
                 if (response.status === 403) {
                     console.error('Authentication error: Admin privileges required');
                     throw new Error('Administrator privileges required to access suppliers');
@@ -44,13 +48,17 @@ class SupplierApi {
             return data;
         } catch (error) {
             console.error('Error in getAllSuppliers:', error);
-            throw error; // Throw the error for the component to handle
+            throw error;
         }
     }
 
     static async getSupplierById(id) {
         try {
-            const response = await fetch(`${API_BASE_URL}/${id}`, {
+            const endpoint = process.env.NODE_ENV === 'production' 
+                ? `/supplier/detail/${id}/` 
+                : `/api/suppliers/${id}`;
+                
+            const response = await fetch(API_BASE_URL + endpoint, {
                 method: 'GET',
                 headers: this.getAuthHeaders(),
                 credentials: 'include'
@@ -72,7 +80,11 @@ class SupplierApi {
 
     static async createSupplier(supplierData) {
         try {
-            const response = await fetch(API_BASE_URL, {
+            const endpoint = process.env.NODE_ENV === 'production' 
+                ? '/supplier/create/' 
+                : '/api/suppliers';
+                
+            const response = await fetch(API_BASE_URL + endpoint, {
                 method: 'POST',
                 headers: this.getAuthHeaders(),
                 body: JSON.stringify(supplierData),
@@ -96,7 +108,11 @@ class SupplierApi {
 
     static async updateSupplier(id, supplierData) {
         try {
-            const response = await fetch(`${API_BASE_URL}/${id}`, {
+            const endpoint = process.env.NODE_ENV === 'production' 
+                ? `/supplier/edit/${id}/` 
+                : `/api/suppliers/${id}`;
+                
+            const response = await fetch(API_BASE_URL + endpoint, {
                 method: 'PUT',
                 headers: this.getAuthHeaders(),
                 body: JSON.stringify(supplierData),
@@ -120,7 +136,11 @@ class SupplierApi {
 
     static async deleteSupplier(id) {
         try {
-            const response = await fetch(`${API_BASE_URL}/${id}`, {
+            const endpoint = process.env.NODE_ENV === 'production' 
+                ? `/supplier/delete/${id}/` 
+                : `/api/suppliers/${id}`;
+                
+            const response = await fetch(API_BASE_URL + endpoint, {
                 method: 'DELETE',
                 headers: this.getAuthHeaders(),
                 credentials: 'include'
