@@ -24,28 +24,13 @@ export default function PaymentDetail() {
   useEffect(() => {
     const fetchPaymentDetail = async () => {
       try {
-        const token = localStorage.getItem("token") || "";
-
-        try {
-          let body = JSON.stringify({ "token": token });
-          const authResponse = await fetch("http://localhost:8080/auth/auth-cashier/", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body,
-          });
-
-          if (!authResponse.ok) throw new Error("Unauthorized");
-
-          const paymentData = await PaymentApi.getPaymentById(id);
-          setPayment(paymentData);
-        } catch (err) {
-          if (err.message === "Unauthorized" || err.message === "Forbidden") {
-            navigate("/unauthorized");
-            return;
-          }
-          throw err;
-        }
+        const paymentData = await PaymentApi.getPaymentById(id);
+        setPayment(paymentData);
       } catch (err) {
+        if (err.message === "Unauthorized" || err.message === "Forbidden") {
+          navigate("/unauthorized");
+          return;
+        }
         console.error('Error fetching payment:', err);
         setError(`${err.message} - Showing sample data`);
         setPayment(DUMMY_PAYMENT);
