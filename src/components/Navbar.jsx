@@ -1,8 +1,13 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { FaHome, FaBox, FaUsers, FaMoneyCheckAlt, FaTruck, FaCashRegister, FaSignOutAlt } from 'react-icons/fa';
+import {
+  FaHome, FaBox, FaUsers, FaMoneyCheckAlt,
+  FaTruck, FaCashRegister, FaSignOutAlt, FaSignInAlt
+} from 'react-icons/fa';
 
 export default function Navbar() {
   const navigate = useNavigate();
+
+  const isAuthenticated = localStorage.getItem('is_authenticated') === 'true';
 
   const handleLogout = () => {
     try {
@@ -14,10 +19,14 @@ export default function Navbar() {
       alert('An error occurred during logout.');
     }
   };
-  
+
+  const handleLogin = () => {
+    navigate('/auth/login');
+  };
+
   const linkStyle = {
     color: 'white',
-    borderRight: '1px solid rgba(255, 255, 255, 0.15)', // border pemisah agak lebih terang
+    borderRight: '1px solid rgba(255, 255, 255, 0.15)',
     paddingRight: '1rem',
     paddingLeft: '1rem',
   };
@@ -32,8 +41,8 @@ export default function Navbar() {
       className="navbar navbar-expand-lg shadow-sm px-4"
       style={{
         height: '64px',
-        backgroundColor: '#2c3a67', // lebih terang dari #1e263b Home bg
-        borderBottom: '1px solid rgba(255, 255, 255, 0.25)', // border bawah tipis & semi transparan putih
+        backgroundColor: '#2c3a67',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.25)',
       }}
     >
       <div className="container-fluid justify-content-between align-items-center">
@@ -64,14 +73,25 @@ export default function Navbar() {
           </Link>
         </div>
 
-        <button
-          onClick={handleLogout}
-          className="btn btn-outline-danger d-flex align-items-center gap-2"
-          style={{ whiteSpace: 'nowrap' }}
-        >
-          <FaSignOutAlt />
-          Logout
-        </button>
+        {isAuthenticated ? (
+          <button
+            onClick={handleLogout}
+            className="btn btn-outline-danger d-flex align-items-center gap-2"
+            style={{ whiteSpace: 'nowrap' }}
+          >
+            <FaSignOutAlt />
+            Logout
+          </button>
+        ) : (
+          <button
+            onClick={handleLogin}
+            className="btn btn-outline-light d-flex align-items-center gap-2"
+            style={{ whiteSpace: 'nowrap' }}
+          >
+            <FaSignInAlt />
+            Login
+          </button>
+        )}
       </div>
     </nav>
   );

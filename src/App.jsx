@@ -9,6 +9,8 @@ import LandingPage from './LandingPage.jsx';
 import AuthRoutes from './features/auth/AuthRoutes.jsx';
 import Home from './Home.jsx';
 import Unauthorized from './Unauthorized';
+import NotLoggedIn from './NotLoggedIn.jsx';
+import ProtectedRoute from './ProtectedRoute';
 
 export default function App() {
   return (
@@ -17,14 +19,20 @@ export default function App() {
       <Route path="auth/*" element={<AuthRoutes />} />
 
       <Route element={<MainLayout />}>
-        <Route path="/" element={<Home />} />
-        <Route path='unauthorized/' element={<Unauthorized />} />
+      <Route path="/" element={<Home />} />
+      <Route path="unauthorized" element={<Unauthorized />} />
+      <Route path="notloggedin" element={<NotLoggedIn />} />
+
+      <Route element={<ProtectedRoute />}>
         <Route path="produk/*" element={<ManajemenProdukRoutes />} />
         <Route path="pelanggan/*" element={<ManajemenPelangganRoutes />} />
         <Route path="pembayaran/*" element={<ManajemenPembayaranRoutes />} />
         <Route path="supplier/*" element={<ManajemenSupplierRoutes />} />
         <Route path="transaksi/*" element={<TransaksiPenjualanRoutes />} />
       </Route>
+    </Route>
+
+    
     </Routes>
   );
 }

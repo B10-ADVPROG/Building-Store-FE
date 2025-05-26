@@ -4,37 +4,58 @@ export default function Unauthorized() {
   const navigate = useNavigate();
 
   const handleBack = () => {
-    navigate("/"); 
+    navigate("/");
   };
 
   return (
-    <div style={{
-      display: "flex",
-      flexDirection: "column",
-      justifyContent: "center",
-      alignItems: "center",
-      height: "100vh",
-      backgroundColor: "#f8f9fa",
-      padding: "2rem"
-    }}>
-      <h1 style={{ fontSize: "2rem", marginBottom: "1rem", color: "#dc3545" }}>403 - Unauthorized</h1>
-      <p style={{ fontSize: "1rem", color: "#6c757d", marginBottom: "2rem", textAlign: "center" }}>
-        You don't have permission to access this page.<br />
-      </p>
-      <button
-        onClick={handleBack}
+    <div
+      className="d-flex align-items-center justify-content-center min-vh-100"
+      style={{ backgroundColor: "#0b2545" }} // Navy dark blue background
+    >
+      <div
+        className="card shadow p-4 text-center"
         style={{
-          padding: "0.5rem 1.5rem",
-          backgroundColor: "#007bff",
-          color: "white",
+          maxWidth: "500px",
+          width: "100%",
+          backgroundColor: "#13294b", // sedikit lebih terang dari background utama
           border: "none",
-          borderRadius: "4px",
-          cursor: "pointer",
-          fontSize: "1rem"
+          borderRadius: "12px",
         }}
       >
-        Go to Homepage
-      </button>
+        <div className="card-body">
+          <h1
+            className="fw-bold mb-3"
+            style={{ color: "#f2f4f8", fontSize: "3rem" }}
+          >
+            403 - Unauthorized
+          </h1>
+          <p className="mb-4" style={{ color: "#d1d5db" }}>
+            You don't have permission to access this page.
+          </p>
+          <button
+            className="btn"
+            onClick={handleBack}
+            style={{
+              backgroundColor: "#1e3a8a", // navy blue button
+              color: "#f2f4f8",
+              padding: "0.6rem 2rem",
+              borderRadius: "8px",
+              border: "none",
+              fontWeight: "600",
+              cursor: "pointer",
+              transition: "background-color 0.3s ease",
+            }}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.backgroundColor = "#3b82f6")
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.backgroundColor = "#1e3a8a")
+            }
+          >
+            Go to Homepage
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
