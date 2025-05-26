@@ -1,5 +1,6 @@
-const API_BASE_URL = 'http://localhost:8080/api/suppliers';
-
+const API_BASE_URL = process.env.NODE_ENV === 'production' 
+    ? 'https://slim-blythe-williamalxndr-aab64bd4.koyeb.app'
+    : 'http://localhost:8080/api/suppliers';
 class SupplierApi {
     static getAuthHeaders() {
         // Get authentication token - check common storage locations
