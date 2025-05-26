@@ -126,7 +126,7 @@ export default function ProductCard({
             style={!isDeleting ? { borderColor: '#ff5555', color: '#ff5555' } : {}}
           >
             <FaTrash className="me-1" />
-            {isDeleting ? 'Menghapus...' : 'Hapus'}
+            {isDeleting ? 'Deleting...' : 'Delete'}
           </motion.button>
         </div>
       </div>
