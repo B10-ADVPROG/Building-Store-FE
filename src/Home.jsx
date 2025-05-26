@@ -4,13 +4,6 @@ import { useNavigate } from 'react-router-dom';
 export default function Home() {
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const isAuth = localStorage.getItem('is_authenticated') === 'true';
-    if (!isAuth) {
-      navigate('/landing');
-    }
-  }, [navigate]);
-
   const handleNavigate = (path) => {
     navigate(path);
   };
