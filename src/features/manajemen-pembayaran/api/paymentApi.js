@@ -119,7 +119,7 @@ class PaymentApi {
             if (!response.ok) {
                 const errorText = await response.text();
                 if (response.status === 403) {
-                    throw new Error('Cashier privileges required to delete payments');
+                    throw new Error('Admin privileges required to delete payments');
                 }
                 throw new Error(`Failed to delete payment: ${response.status} ${errorText}`);
             }
